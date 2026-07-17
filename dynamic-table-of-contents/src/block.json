@@ -2,7 +2,7 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "wpcomsp/dynamic-table-of-contents",
-	"version": "0.1.9",
+	"version": "0.3.0",
 	"title": "Dynamic Table of Contents",
 	"category": "design",
 	"description": "Creates a table of contents that's dynamically (PHP) rendered.",
@@ -27,13 +27,55 @@
 			"color": true
 		}
 	},
-	"usesContext": [
-		"postId"
-	],
+	"usesContext": [ "postId" ],
 	"attributes": {
 		"title": {
 			"type": "string",
 			"default": "Table of Contents"
+		},
+		"includeH1": {
+			"type": "boolean",
+			"default": true
+		},
+		"includeH2": {
+			"type": "boolean",
+			"default": true
+		},
+		"includeH3": {
+			"type": "boolean",
+			"default": true
+		},
+		"includeH4": {
+			"type": "boolean",
+			"default": true
+		},
+		"includeH5": {
+			"type": "boolean",
+			"default": true
+		},
+		"includeH6": {
+			"type": "boolean",
+			"default": true
+		},
+		"contentClassName": {
+			"type": "string",
+			"default": ""
+		},
+		"accordionMode": {
+			"type": "boolean",
+			"default": false
+		},
+		"accordionBreakpoint": {
+			"type": "number",
+			"default": 600
+		},
+		"accordionDefaultOpen": {
+			"type": "boolean",
+			"default": false
+		},
+		"enableDeepLinks": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"textdomain": "dynamic-table-of-contents",
