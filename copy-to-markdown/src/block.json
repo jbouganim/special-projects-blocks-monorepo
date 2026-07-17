@@ -1,0 +1,61 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "a8csp/copy-to-markdown",
+	"version": "0.1.0",
+	"title": "Copy to Markdown",
+	"category": "widgets",
+	"icon": "clipboard",
+	"description": "Copies content from a CSS selector to the clipboard as Markdown.",
+	"keywords": ["copy", "markdown", "clipboard"],
+	"attributes": {
+		"label": {
+			"type": "string",
+			"default": "Copy content"
+		},
+		"contentSelector": {
+			"type": "string",
+			"default": ".entry-content"
+		}
+	},
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"align": ["left", "center", "right"],
+		"color": {
+			"text": true,
+			"background": true,
+			"link": false,
+			"__experimentalDefaultControls": {
+				"text": true,
+				"background": false
+			}
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true,
+			"__experimentalDefaultControls": {
+				"padding": true,
+				"margin": false
+			}
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	},
+	"textdomain": "copy-to-markdown",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js",
+	"render": "file:./render.php"
+}

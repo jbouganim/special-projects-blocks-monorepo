@@ -1,0 +1,103 @@
+.wp-block-a8csp-copy-to-markdown {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375em;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	line-height: 1.2;
+	text-align: left;
+	text-transform: inherit;
+	letter-spacing: inherit;
+	cursor: pointer;
+	appearance: none;
+	transition: opacity 0.25s ease;
+
+	&:disabled {
+		cursor: default;
+	}
+
+	&:hover {
+		opacity: 0.8;
+	}
+
+	.a8csp-copy-to-markdown__icons,
+	.a8csp-copy-to-markdown__labels {
+		position: relative;
+		display: inline-grid;
+		place-items: center start;
+	}
+
+	.a8csp-copy-to-markdown__icons {
+		flex: 0 0 auto;
+		width: 1em;
+		height: 1em;
+		place-items: center;
+	}
+
+	.a8csp-copy-to-markdown__labels {
+		flex: 0 1 auto;
+	}
+
+	.a8csp-copy-to-markdown__icon,
+	.a8csp-copy-to-markdown__label {
+		grid-area: 1 / 1;
+		transition: opacity 0.25s ease;
+	}
+
+	.a8csp-copy-to-markdown__icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		line-height: 0;
+
+		svg {
+			display: block;
+			width: 1em;
+			height: 1em;
+		}
+	}
+
+	.a8csp-copy-to-markdown__label {
+		display: inline-block;
+		white-space: nowrap;
+	}
+
+	.a8csp-copy-to-markdown__icon--copy,
+	.a8csp-copy-to-markdown__label--default {
+		opacity: 1;
+	}
+
+	.a8csp-copy-to-markdown__icon--check,
+	.a8csp-copy-to-markdown__label--copied {
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	&.is-copied {
+		.a8csp-copy-to-markdown__icon--copy,
+		.a8csp-copy-to-markdown__label--default {
+			opacity: 0;
+			pointer-events: none;
+		}
+
+		.a8csp-copy-to-markdown__icon--check,
+		.a8csp-copy-to-markdown__label--copied {
+			opacity: 1;
+			pointer-events: none;
+			cursor: default;
+		}
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.wp-block-a8csp-copy-to-markdown {
+		.a8csp-copy-to-markdown__icon,
+		.a8csp-copy-to-markdown__label {
+			transition: none;
+		}
+	}
+}
