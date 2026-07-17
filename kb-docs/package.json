@@ -1,0 +1,21 @@
+{
+	"name": "kb-docs",
+	"private": true,
+	"version": "0.3.0",
+	"description": "KB Docs layout block suite for wp.cloud documentation pages.",
+	"author": "WordPress Special Projects Team",
+	"license": "GPL-2.0-or-later",
+	"homepage": "https://wpspecialprojects.wordpress.com/",
+	"scripts": {
+		"build": "wp-scripts build --experimental-modules",
+		"format": "wp-scripts format",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start --experimental-modules"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^30.27.0"
+	}
+}

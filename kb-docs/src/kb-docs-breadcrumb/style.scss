@@ -1,0 +1,91 @@
+.wp-block-a8csp-kb-docs-breadcrumb {
+	&.has-link-color .a8csp-kbdocs-breadcrumbs a,
+	&.has-link-color .a8csp-kbdocs-breadcrumb-link {
+		color: inherit;
+	}
+
+	// Crumb text inherits typography/color from block wrapper supports.
+	.a8csp-kbdocs-breadcrumbs,
+	.a8csp-kbdocs-breadcrumb-link,
+	.a8csp-kbdocs-breadcrumb-current,
+	.a8csp-kbdocs-breadcrumb-sep {
+		font-family: inherit;
+		font-size: inherit;
+		font-style: inherit;
+		font-weight: inherit;
+		line-height: inherit;
+		letter-spacing: inherit;
+		text-decoration: inherit;
+		text-transform: inherit;
+		color: inherit;
+	}
+
+	// Participate in the block wrapper flex layout so block spacing (gap)
+	// applies between each crumb and separator, not only around the nav element.
+	&.is-layout-flex {
+		display: flex;
+		flex-wrap: nowrap;
+		align-items: flex-start;
+
+		.a8csp-kbdocs-breadcrumbs:not(.a8csp-kbdocs-breadcrumb-preview) {
+			display: flex;
+			gap: inherit;
+			flex-wrap: wrap;
+		}
+	}
+
+	&:not(.is-layout-flex) .a8csp-kbdocs-breadcrumbs {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--wp--style--block-gap, 0.5rem);
+		margin: 0;
+	}
+
+	.a8csp-kbdocs-breadcrumb-link {
+		text-decoration: none;
+	}
+
+	.a8csp-kbdocs-breadcrumb-sep {
+		opacity: 0.65;
+	}
+
+	.a8csp-kbdocs-breadcrumb-empty {
+		margin: 0;
+	}
+
+	// Mobile sidebar overlay trigger — hidden on desktop.
+	.a8csp-kbdocs-sidebar-trigger {
+		display: none;
+		align-items: center;
+		justify-content: center;
+		flex: 0 0 auto;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: inherit;
+		cursor: pointer;
+		appearance: none;
+		line-height: 0;
+
+		svg {
+			display: block;
+		}
+	}
+}
+
+// Below 960px: crumbs on the left, sidebar trigger pushed to the right.
+// The nav uses `display: contents` in flex layout, so the trigger uses
+// margin-left auto instead of space-between (which would spread the crumbs).
+@media ( max-width: 959px ) {
+	.wp-block-a8csp-kb-docs-breadcrumb {
+		display: flex;
+		align-items: center;
+
+		.a8csp-kbdocs-sidebar-trigger {
+			display: inline-flex;
+			margin-left: auto;
+		}
+	}
+}

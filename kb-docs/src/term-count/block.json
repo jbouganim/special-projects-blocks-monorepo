@@ -1,0 +1,12 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "a8csp/kb-docs-term-count",
+	"title": "Core Term Count",
+	"icon": "tag",
+	"description": "Editor extensions for core/term-count block variations. Not a standalone block.",
+	"ignoreBlockJsonCheck": true,
+	"version": "0.3.0",
+	"textdomain": "kb-docs",
+	"editorScript": "file:./edit.js"
+}

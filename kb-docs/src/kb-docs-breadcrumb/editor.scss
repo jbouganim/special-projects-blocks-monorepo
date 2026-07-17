@@ -1,0 +1,15 @@
+.wp-block-a8csp-kb-docs-breadcrumb {
+	// Preview wrapper is the flex container (crumbs are direct children).
+	&.a8csp-kbdocs-breadcrumb-preview {
+		.a8csp-kbdocs-breadcrumb-link,
+		.a8csp-kbdocs-breadcrumb-current {
+			cursor: default;
+		}
+	}
+
+	.a8csp-kbdocs-breadcrumb-preview-status {
+		font-size: var(--wp--preset--font-size--small);
+		color: var(--wp--preset--color--base-2, #757575);
+		margin: 0;
+	}
+}

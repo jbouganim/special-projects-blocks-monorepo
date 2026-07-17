@@ -1,0 +1,24 @@
+.wp-block-a8csp-kb-docs-sidebar {
+	.a8csp-kbdocs-sidebar {
+		position: static;
+		max-height: none;
+	}
+
+	.a8csp-kbdocs-sidebar-preview {
+		border: 1px dashed var(--wp--preset--color--base-3, #ccc);
+		border-radius: 4px;
+		padding: var(--wp--preset--spacing--20);
+		margin-top: var(--wp--preset--spacing--20);
+	}
+
+	.a8csp-kbdocs-sidebar-preview-status {
+		font-size: var(--wp--preset--font-size--small);
+		color: var(--wp--preset--color--base-2, #757575);
+		margin: var(--wp--preset--spacing--20) 0 0;
+	}
+
+	.a8csp-kbdocs-sidebar-preview .a8csp-kbdocs-sidebar-term-link,
+	.a8csp-kbdocs-sidebar-preview .a8csp-kbdocs-sidebar-article span {
+		cursor: default;
+	}
+}

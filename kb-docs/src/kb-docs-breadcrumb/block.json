@@ -1,0 +1,109 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "a8csp/kb-docs-breadcrumb",
+	"version": "0.3.0",
+	"title": "KB Docs Breadcrumb",
+	"category": "widgets",
+	"icon": "arrow-right-alt",
+	"description": "Displays docs breadcrumbs above article content.",
+	"attributes": {
+		"taxonomy": {
+			"type": "string",
+			"default": "kb_cat"
+		},
+		"postType": {
+			"type": "string",
+			"default": "kb_article"
+		},
+		"homeLabel": {
+			"type": "string",
+			"default": "Docs"
+		},
+		"separator": {
+			"type": "string",
+			"default": "/"
+		},
+		"showMobileSidebarButton": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"supports": {
+		"html": false,
+		"multiple": false,
+		"anchor": true,
+		"align": ["wide", "full"],
+		"layout": {
+			"allowEditing": true,
+			"allowSwitching": false,
+			"default": {
+				"type": "flex",
+				"orientation": "horizontal",
+				"flexWrap": true
+			}
+		},
+		"interactivity": {
+			"interactive": true,
+			"clientNavigation": true
+		},
+		"color": {
+			"background": true,
+			"text": true,
+			"link": true,
+			"gradients": true,
+			"__experimentalDefaultControls": {
+				"background": true,
+				"text": true,
+				"link": true
+			}
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true,
+			"blockGap": true,
+			"__experimentalDefaultControls": {
+				"padding": true,
+				"margin": true,
+				"blockGap": true
+			}
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true,
+				"lineHeight": false
+			}
+		},
+		"dimensions": {
+			"minHeight": true
+		},
+		"__experimentalBorder": {
+			"radius": true,
+			"color": true,
+			"width": true,
+			"style": true,
+			"__experimentalDefaultControls": {
+				"radius": false,
+				"color": true,
+				"width": true,
+				"style": true
+			}
+		}
+	},
+	"textdomain": "kb-docs",
+	"selectors": {
+		"root": ".wp-block-a8csp-kb-docs-breadcrumb .a8csp-kbdocs-breadcrumb-link, .wp-block-a8csp-kb-docs-breadcrumb .a8csp-kbdocs-breadcrumb-current, .wp-block-a8csp-kb-docs-breadcrumb .a8csp-kbdocs-breadcrumb-sep"
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php"
+}

@@ -1,0 +1,276 @@
+.wp-block-a8csp-kb-docs-sidebar {
+	max-width: 300px;
+	padding-bottom: var(--wp--preset--spacing--30);
+
+	.a8csp-kbdocs-sidebar-chrome {
+		margin: 0;
+	}
+
+	&.has-link-color .a8csp-kbdocs-sidebar a {
+		color: inherit;
+	}
+
+	.a8csp-kbdocs-sidebar-backdrop {
+		display: none;
+	}
+
+	.a8csp-kbdocs-sidebar-mobile-header {
+		display: none;
+	}
+
+	.a8csp-kbdocs-sidebar-close {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: inherit;
+		cursor: pointer;
+		appearance: none;
+		line-height: 0;
+	}
+
+	.a8csp-kbdocs-sidebar {
+		--a8csp-kbdocs-sidebar-fade-size: 2.5rem;
+		--a8csp-kbdocs-sidebar-fade-top: 0px;
+		--a8csp-kbdocs-sidebar-fade-bottom: 0px;
+
+		position: sticky;
+		top: calc(72px + var(--wp-admin--admin-bar--height, 0px));
+		max-height: calc(100vh - 88px - var(--wp-admin--admin-bar--height, 0px));
+		overflow: auto;
+	}
+
+	.a8csp-kbdocs-sidebar-sections,
+	.a8csp-kbdocs-sidebar-children {
+		list-style: none;
+		padding-left: 0;
+		margin: 0;
+	}
+
+	.a8csp-kbdocs-sidebar-sections {
+		display: flex;
+		flex-direction: column;
+		// Block spacing control sets --wp--style--block-gap on the block wrapper.
+		gap: var(--wp--style--block-gap, var(--wp--preset--spacing--20));
+	}
+
+	.a8csp-kbdocs-sidebar-term-link,
+	.a8csp-kbdocs-sidebar-article a,
+	.a8csp-kbdocs-sidebar-sections span {
+		text-decoration: none;
+	}
+
+	.a8csp-kbdocs-sidebar-term-link {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--wp--preset--spacing--10);
+		width: 100%;
+		margin: 0;
+		padding: 6px 0;
+		transition: all 0.2s ease;
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	button.a8csp-kbdocs-sidebar-term-link {
+		appearance: none;
+	}
+
+	.a8csp-kbdocs-sidebar-term-label {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	.a8csp-kbdocs-sidebar-chevron {
+		display: inline-flex;
+		flex: 0 0 auto;
+		align-items: center;
+		justify-content: center;
+		line-height: 0;
+		transition: transform 0.15s ease;
+
+		svg {
+			display: block;
+		}
+	}
+
+	.a8csp-kbdocs-sidebar-term.is-expanded > .a8csp-kbdocs-sidebar-term-link {
+		.a8csp-kbdocs-sidebar-chevron {
+			transform: rotate(90deg);
+		}
+	}
+
+	.a8csp-kbdocs-sidebar-term-link.is-active,
+	.a8csp-kbdocs-sidebar-article a.is-active,
+	.a8csp-kbdocs-sidebar-sections span.is-active {
+		font-weight: 700;
+	}
+
+	.a8csp-kbdocs-sidebar-children {
+		display: none;
+		flex-direction: column;
+		gap: var(--wp--style--block-gap, var(--wp--preset--spacing--10));
+		margin-top: var(--wp--style--block-gap, var(--wp--preset--spacing--10));
+		padding-left: var(--wp--preset--spacing--20);
+	}
+
+	.a8csp-kbdocs-sidebar-term.is-expanded > .a8csp-kbdocs-sidebar-children {
+		display: flex;
+		gap: 2px;
+	}
+
+	.a8csp-kbdocs-sidebar-article a {
+		display: inline-block;
+		padding: 6px 0;
+		transition: all 0.2s ease;
+	}
+
+	.a8csp-kbdocs-sidebar-empty {
+		margin: 0;
+	}
+}
+
+// Register custom properties so scroll-driven keyframes can interpolate lengths.
+@property --a8csp-kbdocs-sidebar-fade-top {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
+@property --a8csp-kbdocs-sidebar-fade-bottom {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
+@keyframes a8csp-kbdocs-sidebar-fade-top {
+	from {
+		--a8csp-kbdocs-sidebar-fade-top: 0px;
+	}
+
+	to {
+		--a8csp-kbdocs-sidebar-fade-top: var(--a8csp-kbdocs-sidebar-fade-size);
+	}
+}
+
+@keyframes a8csp-kbdocs-sidebar-fade-bottom {
+	from {
+		--a8csp-kbdocs-sidebar-fade-bottom: var(--a8csp-kbdocs-sidebar-fade-size);
+	}
+
+	to {
+		--a8csp-kbdocs-sidebar-fade-bottom: 0px;
+	}
+}
+
+// Desktop sticky scroller: fade edges only when there is more content past that edge.
+@media ( min-width: 960px ) {
+	@supports ( animation-timeline: scroll() ) {
+		.wp-block-a8csp-kb-docs-sidebar .a8csp-kbdocs-sidebar {
+			mask-image: linear-gradient(
+				to bottom,
+				transparent,
+				#000 var(--a8csp-kbdocs-sidebar-fade-top),
+				#000 calc(100% - var(--a8csp-kbdocs-sidebar-fade-bottom)),
+				transparent
+			);
+			mask-size: 100% 100%;
+			mask-repeat: no-repeat;
+			animation:
+				linear both a8csp-kbdocs-sidebar-fade-top,
+				linear both a8csp-kbdocs-sidebar-fade-bottom;
+			animation-timeline: scroll(self), scroll(self);
+			animation-range:
+				0 var(--a8csp-kbdocs-sidebar-fade-size),
+				calc(100% - var(--a8csp-kbdocs-sidebar-fade-size)) 100%;
+		}
+	}
+}
+
+// Mobile overlay (< 960px / theme "large").
+@media ( max-width: 959px ) {
+	.wp-block-a8csp-kb-docs-sidebar {
+		max-width: none;
+		padding-bottom: 0;
+
+		.a8csp-kbdocs-sidebar-backdrop {
+			display: block;
+			position: fixed;
+			inset: 0;
+			z-index: 100000;
+			background: rgba(0, 0, 0, 0.4);
+			opacity: 0;
+			visibility: hidden;
+			pointer-events: none;
+			transition: opacity 0.2s ease, visibility 0.2s ease;
+		}
+
+		&.is-mobile-open .a8csp-kbdocs-sidebar-backdrop {
+			opacity: 1;
+			visibility: visible;
+			pointer-events: auto;
+		}
+
+		.a8csp-kbdocs-sidebar-panel {
+			position: fixed;
+			top: 0;
+			left: 0;
+			z-index: 100001;
+			display: flex;
+			flex-direction: column;
+			width: min(100%, 300px);
+			height: 100%;
+			max-height: 95dvh;
+			margin: 0;
+			padding: var(--wp--preset--spacing--20);
+			overflow: auto;
+			background: var(--wp--preset--color--white, #fff);
+			box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+			transform: translateX(-105%);
+			pointer-events: none;
+			transition: transform 0.25s ease;
+		}
+
+		&.is-mobile-open .a8csp-kbdocs-sidebar-panel,
+		.a8csp-kbdocs-sidebar-panel.is-open {
+			transform: translateX(0);
+			pointer-events: auto;
+		}
+
+		.a8csp-kbdocs-sidebar-mobile-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: var(--wp--preset--spacing--20);
+			flex: 0 0 auto;
+			margin: 0 0 var(--wp--preset--spacing--20);
+			padding-bottom: var(--wp--preset--spacing--20);
+			border-bottom: 1px solid var(--wp--preset--color--contrast-3, #d1cecd);
+		}
+
+		.a8csp-kbdocs-sidebar-mobile-title {
+			margin: 0;
+			font-weight: 700;
+		}
+
+		.a8csp-kbdocs-sidebar {
+			position: static;
+			max-height: none;
+			overflow: visible;
+			padding-bottom: 0;
+			margin-bottom: 0;
+		}
+	}
+
+	html.a8csp-kbdocs-sidebar-open {
+		overflow: hidden;
+	}
+}
