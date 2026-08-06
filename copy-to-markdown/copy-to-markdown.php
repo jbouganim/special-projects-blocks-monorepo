@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Copy to Markdown
  * Description:       A button that copies page content to the clipboard as Markdown.
- * Version:           0.1.0
+ * Version:           0.2.0
  * Requires at least: 6.1
  * Requires PHP:      7.4
  * Author:            WordPress Special Projects Team

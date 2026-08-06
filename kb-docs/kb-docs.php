@@ -4,7 +4,7 @@
  * Description:       Docs layout blocks for sidebar, breadcrumb, and content rendering.
  * Requires at least: 6.6
  * Requires PHP:      8.0
- * Version:           0.3.0
+ * Version:           0.4.0
  * Author:            WordPress Special Projects Team
  * Author URI:        https://wpspecialprojects.wordpress.com/
  * Update URI:        https://opsoasis.wpspecialprojects.com/kb-docs/
