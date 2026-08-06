@@ -196,24 +196,26 @@ $close_icon .= '</svg>';
 			</button>
 		</div>
 
-		<?php if ( '' !== $chrome_content ) : ?>
-			<div class="a8csp-kbdocs-sidebar-chrome">
-				<?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner block content is escaped at render time.
-				echo $chrome_content;
-				?>
-			</div>
-		<?php endif; ?>
+		<div class="a8csp-kbdocs-sidebar-panel-scroll">
+			<?php if ( '' !== $chrome_content ) : ?>
+				<div class="a8csp-kbdocs-sidebar-chrome">
+					<?php
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner block content is escaped at render time.
+					echo $chrome_content;
+					?>
+				</div>
+			<?php endif; ?>
 
-		<?php if ( '' !== $nav_markup ) : ?>
-			<?php
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Nav HTML uses escaped values; IAPI attributes must be preserved.
-			echo $nav_markup;
-			?>
-		<?php elseif ( a8csp_kb_docs_is_docs_request() ) : ?>
-			<p class="a8csp-kbdocs-sidebar-empty">
-				<?php echo esc_html__( 'No navigation sections found.', 'kb-docs' ); ?>
-			</p>
-		<?php endif; ?>
+			<?php if ( '' !== $nav_markup ) : ?>
+				<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Nav HTML uses escaped values; IAPI attributes must be preserved.
+				echo $nav_markup;
+				?>
+			<?php elseif ( a8csp_kb_docs_is_docs_request() ) : ?>
+				<p class="a8csp-kbdocs-sidebar-empty">
+					<?php echo esc_html__( 'No navigation sections found.', 'kb-docs' ); ?>
+				</p>
+			<?php endif; ?>
+		</div>
 	</div>
 </aside>

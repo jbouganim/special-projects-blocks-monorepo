@@ -15,6 +15,9 @@
 		"plugin-zip": "wp-scripts plugin-zip",
 		"start": "wp-scripts start src/index.js src/view.js --webpack-copy-php"
 	},
+	"files": [
+		"[^.]*"
+	],
 	"dependencies": {
 		"turndown": "^7.2.0",
 		"turndown-plugin-gfm": "^1.0.2"

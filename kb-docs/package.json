@@ -15,6 +15,9 @@
 		"plugin-zip": "wp-scripts plugin-zip",
 		"start": "wp-scripts start --experimental-modules"
 	},
+	"files": [
+		"[^.]*"
+	],
 	"devDependencies": {
 		"@wordpress/scripts": "^30.27.0"
 	}

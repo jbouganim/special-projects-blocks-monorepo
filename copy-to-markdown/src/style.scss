@@ -33,8 +33,8 @@
 
 	.a8csp-copy-to-markdown__icons {
 		flex: 0 0 auto;
-		width: 1em;
-		height: 1em;
+		width: 16px;
+		height: 16px;
 		place-items: center;
 	}
 
@@ -56,8 +56,8 @@
 
 		svg {
 			display: block;
-			width: 1em;
-			height: 1em;
+			width: 15px;
+			height: 15px;
 		}
 	}
 
@@ -90,6 +90,7 @@
 			pointer-events: none;
 			cursor: default;
 		}
+
 	}
 }
 

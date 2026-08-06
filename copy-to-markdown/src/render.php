@@ -20,7 +20,7 @@ $content_selector = isset( $block_attributes['contentSelector'] ) && is_string( 
 	? $block_attributes['contentSelector']
 	: '.entry-content';
 
-$copied_label = __( 'Copied', 'copy-to-markdown' );
+$copied_label = __( 'Copied page markdown', 'copy-to-markdown' );
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
@@ -42,9 +42,10 @@ $wrapper_attributes = get_block_wrapper_attributes(
 			</svg>
 		</span>
 		<span class="a8csp-copy-to-markdown__icon a8csp-copy-to-markdown__icon--check">
-			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" focusable="false">
-				<path fill="currentColor" fill-rule="evenodd" d="m15.56 4-.53.53-8.8 8.8c-.68.68-1.78.68-2.47 0l.53-.54-.53.53-2.79-2.79L.44 10 1.5 8.94l.53.53 2.8 2.8c.1.09.25.09.35 0l8.79-8.8.53-.53z" clip-rule="evenodd"/>
-			</svg>
+		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+			<path d="M13.75 8C13.75 4.82436 11.1756 2.25 8 2.25C4.82436 2.25 2.25 4.82436 2.25 8C2.25 11.1756 4.82436 13.75 8 13.75V15C4.13401 15 1 11.866 1 8C1 4.13401 4.13401 1 8 1C11.866 1 15 4.13401 15 8C15 11.866 11.866 15 8 15V13.75C11.1756 13.75 13.75 11.1756 13.75 8Z" fill="currentColor"/>
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M11.3507 5.46092C11.6459 5.70712 11.676 6.1551 11.4117 6.43416L7.52708 10.4861C7.27958 10.7474 6.86943 10.7644 6.60118 10.5245L4.62933 8.70194C4.3546 8.45628 4.33222 8.0332 4.57865 7.7591C4.8233 7.48699 5.24211 7.4629 5.51553 7.70601L6.70964 8.82991C6.84186 8.94748 7.04287 8.94092 7.16716 8.81498L10.4481 5.50153C10.691 5.25541 11.0852 5.23943 11.3507 5.46092Z" fill="currentColor"/>
+		</svg>
 		</span>
 	</span>
 	<span class="a8csp-copy-to-markdown__labels" aria-hidden="true">
