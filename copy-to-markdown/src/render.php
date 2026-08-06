@@ -20,20 +20,36 @@ $content_selector = isset( $block_attributes['contentSelector'] ) && is_string( 
 	? $block_attributes['contentSelector']
 	: '.entry-content';
 
+$label_text   = wp_strip_all_tags( $label );
 $copied_label = __( 'Copied page markdown', 'copy-to-markdown' );
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
-		'class'                   => 'a8csp-copy-to-markdown',
-		'type'                    => 'button',
-		'data-content-selector'   => $content_selector,
-		'data-label'              => wp_strip_all_tags( $label ),
-		'data-copied-label'       => $copied_label,
-		'aria-label'              => wp_strip_all_tags( $label ),
+		'class'                         => 'a8csp-copy-to-markdown',
+		'type'                          => 'button',
+		'data-wp-interactive'           => 'a8csp/copy-to-markdown',
+		'data-wp-on--click'             => 'actions.copy',
+		'data-wp-class--is-copied'      => 'context.isCopied',
+		'data-wp-bind--aria-label'      => 'state.ariaLabel',
+		'aria-label'                    => $label_text,
 	)
 );
 ?>
-<button <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- From get_block_wrapper_attributes(). ?>>
+<button
+	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- From get_block_wrapper_attributes(). ?>
+	<?php
+	echo wp_kses_data(
+		wp_interactivity_data_wp_context(
+			array(
+				'contentSelector' => $content_selector,
+				'label'           => $label_text,
+				'copiedLabel'     => $copied_label,
+				'isCopied'        => false,
+			)
+		)
+	);
+	?>
+>
 	<span class="a8csp-copy-to-markdown__icons" aria-hidden="true">
 		<span class="a8csp-copy-to-markdown__icon a8csp-copy-to-markdown__icon--copy">
 			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" focusable="false">

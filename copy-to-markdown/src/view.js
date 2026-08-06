@@ -7,7 +7,7 @@ import { gfm } from 'turndown-plugin-gfm';
 /**
  * WordPress dependencies
  */
-import domReady from '@wordpress/dom-ready';
+import { store, getContext } from '@wordpress/interactivity';
 
 const SUCCESS_DURATION_MS = 3000;
 
@@ -46,60 +46,18 @@ function htmlToMarkdown( selector ) {
 }
 
 /**
- * Show the copied success state, then restore the default label/icon.
- * Icon and label both transition via the shared `.is-copied` CSS class.
+ * Copy text to the clipboard, with a legacy fallback.
  *
- * @param {HTMLButtonElement} button Button element.
+ * @param {string} text Text to copy.
+ * @return {Promise<boolean>} Whether the copy succeeded.
  */
-function showCopiedState( button ) {
-	const defaultAria =
-		button.getAttribute( 'data-label' ) ||
-		button.getAttribute( 'aria-label' ) ||
-		'';
-	const copiedLabel =
-		button.getAttribute( 'data-copied-label' ) || 'Copied';
-
-	button.classList.add( 'is-copied' );
-	button.setAttribute( 'aria-label', copiedLabel );
-
-	window.setTimeout( () => {
-		button.classList.remove( 'is-copied' );
-		button.setAttribute( 'aria-label', defaultAria );
-	}, SUCCESS_DURATION_MS );
-}
-
-/**
- * Handle copy button click.
- *
- * @param {MouseEvent} event Click event.
- * @return {Promise<void>}
- */
-async function onCopyClick( event ) {
-	const button = event.currentTarget;
-
-	if ( ! ( button instanceof HTMLButtonElement ) ) {
-		return;
-	}
-
-	if ( button.classList.contains( 'is-copied' ) ) {
-		return;
-	}
-
-	const selector =
-		button.getAttribute( 'data-content-selector' ) || '.entry-content';
-	const markdown = htmlToMarkdown( selector );
-
-	if ( markdown === '' ) {
-		return;
-	}
-
+async function writeClipboardText( text ) {
 	try {
-		await navigator.clipboard.writeText( markdown );
-		showCopiedState( button );
+		await navigator.clipboard.writeText( text );
+		return true;
 	} catch ( error ) {
-		// Fallback for older browsers / insecure contexts.
 		const textarea = document.createElement( 'textarea' );
-		textarea.value = markdown;
+		textarea.value = text;
 		textarea.setAttribute( 'readonly', '' );
 		textarea.style.position = 'absolute';
 		textarea.style.left = '-9999px';
@@ -107,22 +65,47 @@ async function onCopyClick( event ) {
 		textarea.select();
 
 		try {
-			document.execCommand( 'copy' );
-			showCopiedState( button );
+			return document.execCommand( 'copy' );
 		} finally {
 			textarea.remove();
 		}
 	}
 }
 
-domReady( () => {
-	document
-		.querySelectorAll( '.wp-block-a8csp-copy-to-markdown' )
-		.forEach( ( button ) => {
-			if ( ! ( button instanceof HTMLButtonElement ) ) {
+store( 'a8csp/copy-to-markdown', {
+	state: {
+		get ariaLabel() {
+			const context = getContext();
+			return context.isCopied ? context.copiedLabel : context.label;
+		},
+	},
+	actions: {
+		*copy() {
+			const context = getContext();
+
+			if ( context.isCopied ) {
 				return;
 			}
 
-			button.addEventListener( 'click', onCopyClick );
-		} );
+			const markdown = htmlToMarkdown( context.contentSelector );
+
+			if ( markdown === '' ) {
+				return;
+			}
+
+			const didCopy = yield writeClipboardText( markdown );
+
+			if ( ! didCopy ) {
+				return;
+			}
+
+			context.isCopied = true;
+
+			yield new Promise( ( resolve ) => {
+				window.setTimeout( resolve, SUCCESS_DURATION_MS );
+			} );
+
+			context.isCopied = false;
+		},
+	},
 } );
