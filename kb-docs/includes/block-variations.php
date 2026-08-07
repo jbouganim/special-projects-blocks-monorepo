@@ -46,6 +46,34 @@ function a8csp_kb_docs_register_block_variation_attributes( array $args, string 
 		return $args;
 	}
 
+	if ( 'core/query-total' === $block_name ) {
+		if ( ! isset( $args['attributes'] ) || ! is_array( $args['attributes'] ) ) {
+			$args['attributes'] = array();
+		}
+
+		$args['attributes']['showRemaining'] = array(
+			'type'    => 'boolean',
+			'default' => false,
+		);
+
+		$args['attributes']['linkToTaxArchive'] = array(
+			'type'    => 'boolean',
+			'default' => false,
+		);
+
+		$args['attributes']['suffixSingularLabel'] = array(
+			'type'    => 'string',
+			'default' => '',
+		);
+
+		$args['attributes']['suffixPluralLabel'] = array(
+			'type'    => 'string',
+			'default' => '',
+		);
+
+		return $args;
+	}
+
 	if ( 'core/categories' !== $block_name ) {
 		return $args;
 	}
@@ -678,3 +706,238 @@ function a8csp_kb_docs_render_categories_block_variation( string $block_content,
 	);
 }
 add_filter( 'render_block_core/categories', 'a8csp_kb_docs_render_categories_block_variation', 10, 3 );
+
+/**
+ * Enable include_children on KB Docs taxonomy clauses in a query args array.
+ *
+ * @param array<string, mixed> $query WP_Query args.
+ * @return array<string, mixed>
+ */
+function a8csp_kb_docs_enable_tax_query_include_children( array $query ): array {
+	if ( ! isset( $query['tax_query'] ) || ! is_array( $query['tax_query'] ) ) {
+		return $query;
+	}
+
+	$taxonomy = a8csp_kb_docs_get_taxonomy();
+
+	foreach ( $query['tax_query'] as $index => $clause ) {
+		if ( ! is_array( $clause ) ) {
+			continue;
+		}
+
+		if ( ! isset( $clause['taxonomy'] ) || $taxonomy !== $clause['taxonomy'] ) {
+			continue;
+		}
+
+		$query['tax_query'][ $index ]['include_children'] = true;
+	}
+
+	return $query;
+}
+
+/**
+ * Include child-term posts for docs home Query Loops.
+ *
+ * Core `taxQuery` sets `include_children` to false. Home category cards should
+ * list guides in the category tree (parent + descendants).
+ *
+ * @param array<string, mixed> $query Array of WP_Query args from the Query block.
+ * @param WP_Block             $block Block instance.
+ * @param int                  $page  Current query page number.
+ * @return array<string, mixed>
+ */
+function a8csp_kb_docs_home_term_articles_query_vars( array $query, WP_Block $block, int $page ): array {
+	unset( $page );
+
+	/*
+	 * build_query_vars_from_query_block() is usually called from post-template,
+	 * so className is often on that inner block (kb-docs-home-article-list),
+	 * not on the parent Query (kb-docs-term-articles).
+	 */
+	$class_name = '';
+	if ( isset( $block->attributes['className'] ) && is_string( $block->attributes['className'] ) ) {
+		$class_name = $block->attributes['className'];
+	}
+
+	$is_home_term_articles = str_contains( $class_name, 'kb-docs-term-articles' )
+		|| str_contains( $class_name, 'kb-docs-home-article-list' );
+
+	if ( ! $is_home_term_articles ) {
+		return $query;
+	}
+
+	return a8csp_kb_docs_enable_tax_query_include_children( $query );
+}
+add_filter( 'query_loop_block_query_vars', 'a8csp_kb_docs_home_term_articles_query_vars', 10, 3 );
+
+/**
+ * Resolve the first taxonomy term ID from a Query block's taxQuery context.
+ *
+ * @param array<string, mixed> $query_context Query block context array.
+ * @return array{taxonomy: string, term_id: int}|null
+ */
+function a8csp_kb_docs_get_term_ref_from_query_context( array $query_context ): ?array {
+	if ( ! isset( $query_context['taxQuery'] ) || ! is_array( $query_context['taxQuery'] ) ) {
+		return null;
+	}
+
+	$tax_query = $query_context['taxQuery'];
+	$taxonomy  = a8csp_kb_docs_get_taxonomy();
+
+	$term_ids = array();
+
+	if ( isset( $tax_query['include'] ) && is_array( $tax_query['include'] ) ) {
+		if ( isset( $tax_query['include'][ $taxonomy ] ) && is_array( $tax_query['include'][ $taxonomy ] ) ) {
+			$term_ids = $tax_query['include'][ $taxonomy ];
+		}
+	} elseif ( isset( $tax_query[ $taxonomy ] ) && is_array( $tax_query[ $taxonomy ] ) ) {
+		$term_ids = $tax_query[ $taxonomy ];
+	}
+
+	if ( count( $term_ids ) < 1 ) {
+		return null;
+	}
+
+	$term_id = (int) $term_ids[0];
+	if ( $term_id < 1 ) {
+		return null;
+	}
+
+	return array(
+		'taxonomy' => $taxonomy,
+		'term_id'  => $term_id,
+	);
+}
+
+/**
+ * Format the remaining-results label for Query Total.
+ *
+ * @param int   $remaining  Remaining result count.
+ * @param array $attributes Block attributes.
+ * @return string
+ */
+function a8csp_kb_docs_format_query_remaining_label( int $remaining, array $attributes ): string {
+	$singular = isset( $attributes['suffixSingularLabel'] ) && is_string( $attributes['suffixSingularLabel'] )
+		? trim( $attributes['suffixSingularLabel'] )
+		: '';
+	$plural   = isset( $attributes['suffixPluralLabel'] ) && is_string( $attributes['suffixPluralLabel'] )
+		? trim( $attributes['suffixPluralLabel'] )
+		: '';
+
+	if ( '' === $singular ) {
+		$singular = __( 'more guide', 'kb-docs' );
+	}
+
+	if ( '' === $plural ) {
+		$plural = __( 'more guides', 'kb-docs' );
+	}
+
+	$label = 1 === $remaining ? $singular : $plural;
+
+	return sprintf(
+		/* translators: 1: remaining count, 2: label (e.g. "more guides") */
+		__( '%1$d %2$s', 'kb-docs' ),
+		$remaining,
+		$label
+	);
+}
+
+/**
+ * Render core/query-total as remaining results linked to the tax archive.
+ *
+ * When `showRemaining` is enabled, outputs "X more guides" (remaining beyond
+ * the current page) and hides the block when remaining is 0.
+ *
+ * @param string   $block_content Rendered block HTML.
+ * @param array    $block         Parsed block data.
+ * @param WP_Block $instance      Block instance.
+ * @return string
+ */
+function a8csp_kb_docs_render_query_total_remaining( string $block_content, array $block, WP_Block $instance ): string {
+	unset( $block );
+
+	$attributes = $instance->attributes ?? array();
+	if ( ! is_array( $attributes ) || empty( $attributes['showRemaining'] ) ) {
+		return $block_content;
+	}
+
+	$query_context = array();
+	if ( isset( $instance->context['query'] ) && is_array( $instance->context['query'] ) ) {
+		$query_context = $instance->context['query'];
+	}
+
+	global $wp_query;
+
+	if ( ! empty( $query_context['inherit'] ) ) {
+		$query_to_use = $wp_query;
+		$current_page = max( 1, (int) get_query_var( 'paged', 1 ) );
+	} else {
+		$page_key     = isset( $instance->context['queryId'] )
+			? 'query-' . $instance->context['queryId'] . '-page'
+			: 'query-page';
+		$current_page = isset( $_GET[ $page_key ] ) ? (int) $_GET[ $page_key ] : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $current_page < 1 ) {
+			$current_page = 1;
+		}
+
+		/*
+		 * Mirror Query Loop filters: core query-total does not run
+		 * query_loop_block_query_vars, so apply child-term inclusion here to match
+		 * the kb-docs-term-articles lists above this block.
+		 */
+		$query_args = build_query_vars_from_query_block( $instance, $current_page );
+		$query_args = a8csp_kb_docs_enable_tax_query_include_children( $query_args );
+		$query_to_use = new WP_Query( $query_args );
+	}
+
+	$found_posts    = (int) $query_to_use->found_posts;
+	$posts_per_page = (int) $query_to_use->get( 'posts_per_page' );
+	if ( $posts_per_page < 1 ) {
+		$posts_per_page = (int) get_option( 'posts_per_page', 10 );
+	}
+
+	$end_index = min( $current_page * $posts_per_page, $found_posts );
+	$remaining = max( 0, $found_posts - $end_index );
+
+	if ( $remaining < 1 ) {
+		return '';
+	}
+
+	$label = a8csp_kb_docs_format_query_remaining_label( $remaining, $attributes );
+
+	$inner_html = esc_html( $label );
+
+	if ( ! empty( $attributes['linkToTaxArchive'] ) ) {
+		$term_ref = a8csp_kb_docs_get_term_ref_from_query_context( $query_context );
+		if ( null !== $term_ref ) {
+			$term = get_term( $term_ref['term_id'], $term_ref['taxonomy'] );
+			if ( $term instanceof WP_Term ) {
+				$term_link = get_term_link( $term );
+				if ( ! is_wp_error( $term_link ) && is_string( $term_link ) && '' !== $term_link ) {
+					$inner_html = sprintf(
+						'<a class="a8csp-kbdocs-term-count-link" href="%1$s"%2$s><span class="a8csp-kbdocs-term-count-label">%3$s</span></a>',
+						esc_url( $term_link ),
+						a8csp_kb_docs_get_link_directives(),
+						esc_html( $label )
+					);
+				}
+			}
+		}
+	}
+
+	$wrapper_attributes = a8csp_kb_docs_get_rendered_wrapper_attributes( $block_content );
+	if ( '' === $wrapper_attributes ) {
+		$wrapper_attributes = get_block_wrapper_attributes(
+			array(
+				'class' => 'wp-block-query-total',
+			)
+		);
+	}
+
+	return sprintf(
+		'<div %1$s>%2$s</div>',
+		$wrapper_attributes,
+		$inner_html
+	);
+}
+add_filter( 'render_block_core/query-total', 'a8csp_kb_docs_render_query_total_remaining', 10, 3 );

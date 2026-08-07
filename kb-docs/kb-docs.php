@@ -4,7 +4,7 @@
  * Description:       Docs layout blocks for sidebar, breadcrumb, and content rendering.
  * Requires at least: 6.6
  * Requires PHP:      8.0
- * Version:           0.4.0
+ * Version:           0.5.0
  * Author:            WordPress Special Projects Team
  * Author URI:        https://wpspecialprojects.wordpress.com/
  * Update URI:        https://opsoasis.wpspecialprojects.com/kb-docs/
@@ -58,6 +58,7 @@ function a8csp_kb_docs_block_init(): void {
 	register_block_type( __DIR__ . '/build/kb-docs-breadcrumb' );
 	register_block_type( __DIR__ . '/build/kb-docs-content' );
 	register_block_type( __DIR__ . '/build/term-count' );
+	register_block_type( __DIR__ . '/build/query-total' );
 	register_block_type( __DIR__ . '/build/categories' );
 }
 add_action( 'init', 'a8csp_kb_docs_block_init' );

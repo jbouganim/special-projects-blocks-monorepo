@@ -1,3 +1,10 @@
+## 0.5.0 (2026-08-06)
+
+### New Features
+
+- Query Total variation: show remaining results beyond the current page (e.g. “3 more guides”), optionally linked to the Query Loop’s taxonomy archive; hidden when there are no remaining results.
+- Docs home term-article Query Loops include child-term posts so category cards list guides across the category tree.
+
 ## 0.4.0 (2026-08-06)
 
 ### Improvements
