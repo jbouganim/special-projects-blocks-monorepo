@@ -107,7 +107,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									} )
 								}
 								min={ 0 }
-								max={ 1200 }
+								max={ 1920 }
 								step={ 1 }
 							/>
 						</>

@@ -2,7 +2,7 @@
 Contributors:      WordPress.com Special Projects Team
 Tags:              block, documentation, knowledge base
 Tested up to:      6.8
-Stable tag:        0.3.0
+Stable tag:        0.6.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,6 +20,11 @@ The KB Docs plugin provides four blocks:
 Each block is single-instance and supports core color controls.
 
 == Changelog ==
+
+= 0.6.0 =
+* Mobile sidebar chevrons toggle down/up below 960px.
+* Prevent mobile drawer flash when resizing across the breakpoint.
+* Sidebar fills its fluid desktop column (max 300px).
 
 = 0.3.0 =
 * Sidebar accordion with mobile overlay; breadcrumb mobile trigger.

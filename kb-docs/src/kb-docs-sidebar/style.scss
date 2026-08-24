@@ -1,4 +1,5 @@
 .wp-block-a8csp-kb-docs-sidebar {
+	width: 100%;
 	max-width: 300px;
 	padding-bottom: var(--wp--preset--spacing--30);
 
@@ -112,7 +113,7 @@
 		flex-direction: column;
 		gap: var(--wp--style--block-gap, var(--wp--preset--spacing--10));
 		margin-top: var(--wp--style--block-gap, var(--wp--preset--spacing--10));
-		padding-left: var(--wp--preset--spacing--20);
+		padding-left: var(--wp--preset--spacing--10);
 	}
 
 	.a8csp-kbdocs-sidebar-term.is-expanded > .a8csp-kbdocs-sidebar-children {
@@ -241,7 +242,22 @@
 		}
 	}
 
+	.a8csp-kbdocs-sidebar-chevron {
+		transform: rotate(-90deg);
+	}
+
 	html.a8csp-kbdocs-sidebar-open {
 		overflow: hidden;
+	}
+}
+
+// Kill drawer transitions while the viewport crosses the mobile breakpoint,
+// otherwise desktop translateX(0) animates to translateX(-105%).
+html.a8csp-kbdocs-sidebar-resizing {
+	.wp-block-a8csp-kb-docs-sidebar {
+		.a8csp-kbdocs-sidebar-panel,
+		.a8csp-kbdocs-sidebar-backdrop {
+			transition: none !important;
+		}
 	}
 }

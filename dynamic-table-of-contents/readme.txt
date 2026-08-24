@@ -2,7 +2,7 @@
 Contributors:      The WordPress Contributors
 Tags:              block
 Tested up to:      6.1
-Stable tag:        0.3.0
+Stable tag:        0.4.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,6 +44,9 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
+
+= 0.4.0 =
+* Raise accordion breakpoint maximum from 1200px to 1920px so accordion mode can match wider layout breakpoints (e.g. 1280px).
 
 = 0.3.0 =
 * Add content class scoping, accordion mode, deep links, and active-heading highlight.

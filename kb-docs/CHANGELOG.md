@@ -1,9 +1,18 @@
+## 0.6.0 (2026-08-12)
+
+### Improvements
+
+- Mobile sidebar chevrons toggle down/up (instead of right/down) below 960px.
+- Suppress the mobile drawer transition while resizing across the breakpoint so the panel does not flash open.
+- Keep the sidebar block full-width within its fluid desktop column (max 300px).
+
 ## 0.5.0 (2026-08-06)
 
 ### New Features
 
 - Query Total variation: show remaining results beyond the current page (e.g. “3 more guides”), optionally linked to the Query Loop’s taxonomy archive; hidden when there are no remaining results.
 - Docs home term-article Query Loops include child-term posts so category cards list guides across the category tree.
+- Query Loop variations include_children now defaults to true.
 
 ## 0.4.0 (2026-08-06)
 

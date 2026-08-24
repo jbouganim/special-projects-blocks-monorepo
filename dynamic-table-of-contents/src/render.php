@@ -56,8 +56,8 @@ if ( $accordion_breakpoint < 0 ) {
 	$accordion_breakpoint = 0;
 }
 
-if ( $accordion_breakpoint > 1200 ) {
-	$accordion_breakpoint = 1200;
+if ( $accordion_breakpoint > 1920 ) {
+	$accordion_breakpoint = 1920;
 }
 
 $list_id = $accordion_mode ? wp_unique_id( 'toc-list-' ) : '';

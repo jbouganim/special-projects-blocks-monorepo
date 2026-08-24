@@ -134,3 +134,68 @@ const { state } = store( 'a8cKBDocs', {
 		},
 	},
 } );
+
+/**
+ * While resizing across the mobile breakpoint, suppress drawer transitions.
+ * Desktop has no off-canvas transform; mobile closed uses translateX(-105%).
+ * With a transition enabled, the browser animates that jump (flash of open drawer).
+ */
+const MOBILE_SIDEBAR_MQ = '(max-width: 959px)';
+const RESIZING_CLASS = 'a8csp-kbdocs-sidebar-resizing';
+const RESIZING_MS = 150;
+
+let resizeTimer = 0;
+
+/**
+ * Toggle the document class that disables mobile drawer transitions.
+ *
+ * @param {boolean} isResizing Whether the viewport is mid-resize.
+ */
+const setSidebarResizing = ( isResizing ) => {
+	document.documentElement.classList.toggle(
+		RESIZING_CLASS,
+		isResizing === true
+	);
+};
+
+/**
+ * Mark resizing, then clear after the viewport settles.
+ */
+const pulseSidebarResizing = () => {
+	setSidebarResizing( true );
+	window.clearTimeout( resizeTimer );
+	resizeTimer = window.setTimeout( () => {
+		setSidebarResizing( false );
+	}, RESIZING_MS );
+};
+
+/**
+ * Close the mobile drawer when the breakpoint flips; suppress transition flash.
+ */
+const onMobileSidebarViewportChange = () => {
+	pulseSidebarResizing();
+
+	if ( state.isMobileSidebarOpen === true ) {
+		state.isMobileSidebarOpen = false;
+		setMobileSidebarDocumentState( false );
+	}
+};
+
+if ( typeof window !== 'undefined' ) {
+	window.addEventListener( 'resize', pulseSidebarResizing, {
+		passive: true,
+	} );
+
+	if ( typeof window.matchMedia === 'function' ) {
+		const mobileSidebarMq = window.matchMedia( MOBILE_SIDEBAR_MQ );
+
+		if ( typeof mobileSidebarMq.addEventListener === 'function' ) {
+			mobileSidebarMq.addEventListener(
+				'change',
+				onMobileSidebarViewportChange
+			);
+		} else if ( typeof mobileSidebarMq.addListener === 'function' ) {
+			mobileSidebarMq.addListener( onMobileSidebarViewportChange );
+		}
+	}
+}

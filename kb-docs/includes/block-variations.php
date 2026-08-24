@@ -736,10 +736,47 @@ function a8csp_kb_docs_enable_tax_query_include_children( array $query ): array 
 }
 
 /**
- * Include child-term posts for docs home Query Loops.
+ * Whether a Query Loop targets KB articles filtered by the docs taxonomy.
  *
- * Core `taxQuery` sets `include_children` to false. Home category cards should
- * list guides in the category tree (parent + descendants).
+ * @param array<string, mixed> $query WP_Query args.
+ * @return bool
+ */
+function a8csp_kb_docs_query_is_kb_article_tax_filtered( array $query ): bool {
+	$post_type = a8csp_kb_docs_get_post_type();
+	$query_post_type = $query['post_type'] ?? '';
+
+	$is_kb_article = ( is_string( $query_post_type ) && $post_type === $query_post_type )
+		|| ( is_array( $query_post_type ) && in_array( $post_type, $query_post_type, true ) );
+
+	if ( ! $is_kb_article ) {
+		return false;
+	}
+
+	if ( ! isset( $query['tax_query'] ) || ! is_array( $query['tax_query'] ) ) {
+		return false;
+	}
+
+	$taxonomy = a8csp_kb_docs_get_taxonomy();
+
+	foreach ( $query['tax_query'] as $clause ) {
+		if ( ! is_array( $clause ) ) {
+			continue;
+		}
+
+		if ( isset( $clause['taxonomy'] ) && $taxonomy === $clause['taxonomy'] ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Include descendant-term posts for KB article Query Loops.
+ *
+ * Core `taxQuery` sets `include_children` to false, so posts assigned only to
+ * child/grandchild terms are omitted. Docs category cards (and similar loops)
+ * should list guides anywhere in the selected category tree.
  *
  * @param array<string, mixed> $query Array of WP_Query args from the Query block.
  * @param WP_Block             $block Block instance.
@@ -750,9 +787,9 @@ function a8csp_kb_docs_home_term_articles_query_vars( array $query, WP_Block $bl
 	unset( $page );
 
 	/*
-	 * build_query_vars_from_query_block() is usually called from post-template,
-	 * so className is often on that inner block (kb-docs-home-article-list),
-	 * not on the parent Query (kb-docs-term-articles).
+	 * Prefer explicit home-card classes, but also apply whenever a non-inherited
+	 * kb_article loop filters by kb_cat so nested term posts are not dropped if
+	 * class names are missing from a customized template.
 	 */
 	$class_name = '';
 	if ( isset( $block->attributes['className'] ) && is_string( $block->attributes['className'] ) ) {
@@ -762,13 +799,34 @@ function a8csp_kb_docs_home_term_articles_query_vars( array $query, WP_Block $bl
 	$is_home_term_articles = str_contains( $class_name, 'kb-docs-term-articles' )
 		|| str_contains( $class_name, 'kb-docs-home-article-list' );
 
-	if ( ! $is_home_term_articles ) {
+	if ( ! $is_home_term_articles && ! a8csp_kb_docs_query_is_kb_article_tax_filtered( $query ) ) {
 		return $query;
 	}
 
 	return a8csp_kb_docs_enable_tax_query_include_children( $query );
 }
 add_filter( 'query_loop_block_query_vars', 'a8csp_kb_docs_home_term_articles_query_vars', 10, 3 );
+
+/**
+ * Include descendant-term posts in kb_article REST collection queries.
+ *
+ * The block editor Query Loop previews via REST, which defaults
+ * `include_children` to false for taxonomy filters.
+ *
+ * @param array<string, mixed> $args    WP_Query args for the REST request.
+ * @param WP_REST_Request      $request Request object.
+ * @return array<string, mixed>
+ */
+function a8csp_kb_docs_rest_kb_article_include_children( array $args, WP_REST_Request $request ): array {
+	unset( $request );
+
+	if ( ! a8csp_kb_docs_query_is_kb_article_tax_filtered( $args ) ) {
+		return $args;
+	}
+
+	return a8csp_kb_docs_enable_tax_query_include_children( $args );
+}
+add_filter( 'rest_kb_article_query', 'a8csp_kb_docs_rest_kb_article_include_children', 10, 2 );
 
 /**
  * Resolve the first taxonomy term ID from a Query block's taxQuery context.
