@@ -59,7 +59,15 @@ if ( a8csp_kb_docs_is_docs_request() ) {
 		esc_html( $home_label )
 	);
 
-	if ( is_tax( $block_taxonomy ) ) {
+	if ( a8csp_kb_docs_is_all_guides_page() ) {
+		$page_id = get_queried_object_id();
+		if ( $page_id > 0 ) {
+			$items[] = sprintf(
+				'<span class="a8csp-kbdocs-breadcrumb-current">%s</span>',
+				esc_html( get_the_title( $page_id ) )
+			);
+		}
+	} elseif ( is_tax( $block_taxonomy ) ) {
 		$term = get_queried_object();
 
 		if ( $term instanceof WP_Term && $term->taxonomy === $block_taxonomy ) {

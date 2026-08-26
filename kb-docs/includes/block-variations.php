@@ -796,8 +796,15 @@ function a8csp_kb_docs_home_term_articles_query_vars( array $query, WP_Block $bl
 		$class_name = $block->attributes['className'];
 	}
 
+	$namespace = '';
+	if ( isset( $block->attributes['namespace'] ) && is_string( $block->attributes['namespace'] ) ) {
+		$namespace = $block->attributes['namespace'];
+	}
+
 	$is_home_term_articles = str_contains( $class_name, 'kb-docs-term-articles' )
-		|| str_contains( $class_name, 'kb-docs-home-article-list' );
+		|| str_contains( $class_name, 'kb-docs-home-article-list' )
+		|| str_contains( $class_name, 'kb-docs-all-guides-articles' )
+		|| 'kb-docs-all-guides-articles' === $namespace;
 
 	if ( ! $is_home_term_articles && ! a8csp_kb_docs_query_is_kb_article_tax_filtered( $query ) ) {
 		return $query;

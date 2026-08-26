@@ -63,13 +63,16 @@ function a8csp_kb_docs_is_docs_request(): bool {
 	$post_type = a8csp_kb_docs_get_post_type();
 	$base_path = a8csp_kb_docs_get_base_path();
 
-	return is_page( $base_path ) || is_tax( $taxonomy ) || is_singular( $post_type );
+	return is_page( $base_path )
+		|| is_tax( $taxonomy )
+		|| is_singular( $post_type )
+		|| a8csp_kb_docs_is_all_guides_page();
 }
 
 /**
  * Get the current docs view slug for IAPI/template-aware styling.
  *
- * @return string One of 'home', 'category', 'single', or empty string.
+ * @return string One of 'home', 'category', 'single', 'all-guides', or empty string.
  */
 function a8csp_kb_docs_get_view(): string {
 	$taxonomy  = a8csp_kb_docs_get_taxonomy();
@@ -82,6 +85,10 @@ function a8csp_kb_docs_get_view(): string {
 
 	if ( is_tax( $taxonomy ) ) {
 		return 'category';
+	}
+
+	if ( a8csp_kb_docs_is_all_guides_page() ) {
+		return 'all-guides';
 	}
 
 	if ( is_page( $base_path ) ) {

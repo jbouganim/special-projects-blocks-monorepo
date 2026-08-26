@@ -4,7 +4,7 @@
  * Description:       Docs layout blocks for sidebar, breadcrumb, and content rendering.
  * Requires at least: 6.6
  * Requires PHP:      8.0
- * Version:           0.6.0
+ * Version:           0.7.0
  * Author:            WordPress Special Projects Team
  * Author URI:        https://wpspecialprojects.wordpress.com/
  * Update URI:        https://opsoasis.wpspecialprojects.com/kb-docs/
@@ -20,6 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require __DIR__ . '/includes/frontend.php';
+require __DIR__ . '/includes/all-guides.php';
 require __DIR__ . '/includes/blocks.php';
 require __DIR__ . '/includes/block-variations.php';
 

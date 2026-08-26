@@ -1,3 +1,9 @@
+## 0.7.0 (2026-08-26)
+
+### New Features
+
+- All Guides page support: cached server-rendered sections, `all-guides` docs view, breadcrumb label, and Terms Query short-circuit for large doc libraries.
+
 ## 0.6.0 (2026-08-12)
 
 ### Improvements

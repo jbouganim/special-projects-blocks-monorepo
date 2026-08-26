@@ -1,7 +1,7 @@
 {
 	"name": "kb-docs",
 	"private": true,
-	"version": "0.6.0",
+	"version": "0.7.0",
 	"description": "KB Docs layout block suite for wp.cloud documentation pages.",
 	"author": "WordPress Special Projects Team",
 	"license": "GPL-2.0-or-later",
