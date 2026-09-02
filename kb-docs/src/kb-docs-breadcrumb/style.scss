@@ -30,16 +30,44 @@
 		.a8csp-kbdocs-breadcrumbs:not(.a8csp-kbdocs-breadcrumb-preview) {
 			display: flex;
 			gap: inherit;
-			flex-wrap: wrap;
+			flex-wrap: nowrap;
+			min-width: 0;
 		}
 	}
 
 	&:not(.is-layout-flex) .a8csp-kbdocs-breadcrumbs {
 		display: flex;
-		flex-wrap: wrap;
+		flex-wrap: nowrap;
 		align-items: center;
 		gap: var(--wp--style--block-gap, 0.5rem);
+		min-width: 0;
 		margin: 0;
+	}
+
+	// The trail stays on one line at every breakpoint: crumbs and separators
+	// never wrap, and the current (last) crumb is the only shrinkable item, so
+	// a long article title truncates with an ellipsis instead of wrapping.
+	// `&.…-preview` covers the editor, where crumbs are children of the wrapper.
+	// Shared base for the layout-scoped nav rules above.
+	// stylelint-disable-next-line no-descending-specificity -- see comment
+	.a8csp-kbdocs-breadcrumbs,
+	&.a8csp-kbdocs-breadcrumb-preview {
+		// Safety net for a trail whose ancestors alone are wider than the block
+		// (mobile with "Collapse on mobile" off): clip rather than push the page
+		// into a horizontal scroll.
+		overflow: hidden;
+
+		> * {
+			flex: 0 0 auto;
+			white-space: nowrap;
+		}
+
+		> :last-child {
+			flex: 0 1 auto;
+			min-width: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
 	}
 
 	.a8csp-kbdocs-breadcrumb-link {
@@ -86,6 +114,26 @@
 		.a8csp-kbdocs-sidebar-trigger {
 			display: inline-flex;
 			margin-left: auto;
+		}
+
+		// Minimized trail (opt-out via the "Collapse on mobile" toggle): keep the
+		// first crumb, the separator that follows it, and the current crumb —
+		// intermediate ancestors are dropped rather than squeezed onto one line.
+		&.is-collapsed-on-mobile {
+
+			.a8csp-kbdocs-breadcrumbs > *,
+			&.a8csp-kbdocs-breadcrumb-preview > * {
+				display: none;
+			}
+
+			.a8csp-kbdocs-breadcrumbs > :first-child,
+			.a8csp-kbdocs-breadcrumbs > :nth-child(2),
+			.a8csp-kbdocs-breadcrumbs > :last-child,
+			&.a8csp-kbdocs-breadcrumb-preview > :first-child,
+			&.a8csp-kbdocs-breadcrumb-preview > :nth-child(2),
+			&.a8csp-kbdocs-breadcrumb-preview > :last-child {
+				display: revert;
+			}
 		}
 	}
 }

@@ -41,14 +41,21 @@ export default function Edit( { attributes, setAttributes } ) {
 		homeLabel,
 		separator,
 		showMobileSidebarButton,
+		collapseOnMobile,
 		style,
 	} = attributes;
 
 	const blockGap = getBlockGapCssValue( style?.spacing?.blockGap );
 
 	const blockProps = useBlockProps( {
-		className:
-			'a8csp-kbdocs-breadcrumb-block a8csp-kbdocs-breadcrumbs a8csp-kbdocs-breadcrumb-preview',
+		className: [
+			'a8csp-kbdocs-breadcrumb-block',
+			'a8csp-kbdocs-breadcrumbs',
+			'a8csp-kbdocs-breadcrumb-preview',
+			collapseOnMobile !== false ? 'is-collapsed-on-mobile' : '',
+		]
+			.filter( Boolean )
+			.join( ' ' ),
 		style: {
 			display: 'flex',
 			flexWrap: 'wrap',
@@ -179,6 +186,17 @@ export default function Edit( { attributes, setAttributes } ) {
 							}
 						/>
 					) }
+					<ToggleControl
+						label={ __( 'Collapse on mobile', 'kb-docs' ) }
+						help={ __(
+							'Below 960px, show only the first and current crumb.',
+							'kb-docs'
+						) }
+						checked={ collapseOnMobile !== false }
+						onChange={ ( value ) =>
+							setAttributes( { collapseOnMobile: value } )
+						}
+					/>
 					<ToggleControl
 						label={ __(
 							'Show mobile sidebar overlay button',

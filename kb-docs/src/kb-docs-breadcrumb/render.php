@@ -28,6 +28,15 @@ $separator = isset( $block_attributes['separator'] ) && is_string( $block_attrib
 $show_sidebar_button = ! isset( $block_attributes['showMobileSidebarButton'] )
 	|| (bool) $block_attributes['showMobileSidebarButton'];
 
+$collapse_on_mobile = ! isset( $block_attributes['collapseOnMobile'] )
+	|| (bool) $block_attributes['collapseOnMobile'];
+
+$wrapper_classes = 'a8csp-kbdocs-breadcrumb-block';
+
+if ( $collapse_on_mobile ) {
+	$wrapper_classes .= ' is-collapsed-on-mobile';
+}
+
 $docs_home_url   = home_url( trailingslashit( a8csp_kb_docs_get_base_path() ) );
 $link_directives = a8csp_kb_docs_get_link_directives();
 $items           = array();
@@ -162,7 +171,7 @@ if ( a8csp_kb_docs_is_docs_request() ) {
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Wrapper attributes include IAPI directives.
 echo get_block_wrapper_attributes(
 	array(
-		'class' => 'a8csp-kbdocs-breadcrumb-block',
+		'class' => $wrapper_classes,
 	)
 );
 ?>>

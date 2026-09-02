@@ -1,3 +1,13 @@
+## 0.8.0 (2026-09-02)
+
+### New Features
+
+- Breadcrumb: "Collapse on mobile" option (default on) shows only the first and current crumb below 960px, dropping intermediate categories instead of wrapping them.
+
+### Improvements
+
+- Breadcrumb: the trail never wraps to a second line — the current crumb truncates with an ellipsis when the title is too long.
+
 ## 0.7.0 (2026-08-26)
 
 ### New Features
