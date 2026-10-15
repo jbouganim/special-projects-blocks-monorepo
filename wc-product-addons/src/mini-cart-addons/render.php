@@ -66,7 +66,7 @@ wp_interactivity_config(
 		/* translators: %s: add-on name. */
 		'removeLabel'   => __( 'Remove %s from cart', 'wc-product-addons' ),
 		/* translators: %s: add-on name. */
-		'detailsLabel'  => __( 'Menu details for %s', 'wc-product-addons' ),
+		'detailsLabel'  => apply_filters('a8csp_wcpa_details_label', __( 'Details for %s', 'wc-product-addons' ) ),
 		'genericError'  => __( 'Something went wrong. Please try again.', 'wc-product-addons' ),
 		'debounceMs'    => 400,
 	)
@@ -134,7 +134,7 @@ ob_start();
 					</div>
 					<p class="a8csp-wcpa-addon__description" data-wp-text="a8csp/wc-product-addons::context.addon.short_description" data-wp-bind--hidden="a8csp/wc-product-addons::!context.addon.short_description"></p>
 					<button type="button" class="a8csp-wcpa-addon__details" data-wp-bind--hidden="a8csp/wc-product-addons::!context.addon.has_details" data-wp-bind--aria-label="a8csp/wc-product-addons::state.detailsLabel" data-wp-on--click="a8csp/wc-product-addons::actions.openDetails">
-						<?php esc_html_e( 'Menu details', 'wc-product-addons' ); ?>
+						<?php echo apply_filters('a8csp_wcpa_details_label', esc_html__( 'Details', 'wc-product-addons' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by core. ?>
 					</button>
 					<div class="a8csp-wcpa-addon__actions">
 						<button type="button" class="a8csp-wcpa-addon__add wp-element-button" data-wp-bind--hidden="a8csp/wc-product-addons::state.isAdded" data-wp-bind--aria-label="a8csp/wc-product-addons::state.addLabel" data-wp-on--click="a8csp/wc-product-addons::actions.add">

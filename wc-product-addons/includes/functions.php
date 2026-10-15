@@ -208,7 +208,7 @@ function a8csp_wcpa_plain_text( $html ) {
 
 /**
  * The text shown with an add-on: its short description (plain text), or ''. The description is
- * not used as a fallback; it goes behind the "Menu details" link (a8csp_wcpa_get_addon_details()).
+ * not used as a fallback; it goes behind the "Details" link (a8csp_wcpa_get_addon_details()).
  *
  * @param WC_Product $addon Add-on product.
  *
@@ -219,7 +219,7 @@ function a8csp_wcpa_get_addon_summary( $addon ) {
 }
 
 /**
- * The add-on's "details": its description as HTML for the "Menu details" dialog, or '' when it has
+ * The add-on's "details": its description as HTML for the "Details" dialog, or '' when it has
  * none. Independent of the short description (shown with the add-on).
  *
  * @param WC_Product $addon Add-on product.
