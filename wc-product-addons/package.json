@@ -1,0 +1,32 @@
+{
+	"name": "wc-product-addons",
+	"version": "0.1.0",
+	"description": "Sell add-on products (dinner, drinks, extras) attached to a parent cart line, chosen in the WooCommerce mini-cart.",
+	"author": "Automattic Special Projects Team",
+	"license": "GPL-2.0-or-later",
+	"scripts": {
+		"build": "wp-scripts build --experimental-modules --webpack-copy-php --blocks-manifest",
+		"format": "wp-scripts format",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start --experimental-modules --webpack-copy-php --blocks-manifest"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^36.1.0"
+	},
+	"files": [
+		"build",
+		"includes",
+		"wc-product-addons.php",
+		"readme.txt",
+		"CHANGELOG.md"
+	],
+	"dependencies": {
+		"@wordpress/block-editor": "^18.1.0",
+		"@wordpress/blocks": "^16.2.0",
+		"@wordpress/i18n": "^6.30.0",
+		"@wordpress/interactivity": "^7.0.0"
+	}
+}

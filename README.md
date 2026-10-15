@@ -59,6 +59,7 @@ longer-form process docs.
 | `table-plus` | Registers `wpcomsp/table-plus`, `wpcomsp/table-plus-row`, and `wpcomsp/table-plus-cell`; includes a PHP renderer, PHPUnit tests, and a WordPress Playground blueprint. |
 | `tabs` | Registers `wpcomsp/tabs` and `wpcomsp/tab`. |
 | `videopress-download` | Registers `wpcomsp/videopress-download` for adding a download button near VideoPress videos. |
+| `wc-product-addons` | `WC Product Add-ons`; requires WooCommerce. Add-on products sold as their own cart lines under a parent line, chosen in the mini-cart through `a8csp/wc-product-addons-mini-cart` (wraps the core Mini-Cart Products Table). Store API extension, Cart/Checkout classes, order line links. |
 
 No tracked PHP registers custom post types, taxonomies, shortcodes, or WP-CLI
 commands.

@@ -1,0 +1,108 @@
+/**
+ * Structural styles only. Themes style the add-ons (spacing, type, colours, buttons).
+ */
+
+// The wrapper doesn't change WooCommerce's mini-cart layout.
+.a8csp-wcpa-mini-cart {
+	display: contents;
+}
+
+// Add-on lines are shown under their parent line, not as rows of their own.
+.wc-block-mini-cart__products-table .wc-block-cart-items__row.a8csp-wcpa-is-addon {
+	display: none !important;
+}
+
+// Theme and WooCommerce display rules (e.g. the quantity selector's flex) mustn't show hidden parts.
+.a8csp-wcpa-mini-cart [hidden] {
+	display: none !important;
+}
+
+// The add-ons cell spans the whole row (mini-cart rows are grids).
+.wc-block-mini-cart__products-table .a8csp-wcpa-mini-cart__addons {
+	grid-column: 1 / -1;
+	display: block;
+	width: 100%;
+}
+
+.a8csp-wcpa-addons__list {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.a8csp-wcpa-addon {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	grid-template-areas:
+		"header actions"
+		"description actions"
+		"details actions";
+	align-items: start;
+	column-gap: 1em;
+
+	&.is-busy {
+		cursor: progress;
+	}
+}
+
+.a8csp-wcpa-addon__header {
+	grid-area: header;
+}
+
+.a8csp-wcpa-addon__description {
+	grid-area: description;
+	margin: 0;
+}
+
+.a8csp-wcpa-addon__details {
+	grid-area: details;
+	justify-self: start;
+}
+
+.a8csp-wcpa-addon__actions {
+	grid-area: actions;
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.a8csp-wcpa-addon__details,
+.a8csp-wcpa-addon__remove {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.a8csp-wcpa-addon__details {
+	text-decoration: underline;
+}
+
+.a8csp-wcpa-details {
+	max-width: min(40rem, calc(100vw - 2rem));
+	max-height: calc(100dvh - 2rem);
+	overflow: auto;
+
+	&::backdrop {
+		background: rgba(0, 0, 0, 0.6);
+	}
+}
+
+.a8csp-wcpa-details__header {
+	display: flex;
+	align-items: start;
+	justify-content: space-between;
+	gap: 1em;
+}
+
+.a8csp-wcpa-details__close {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	cursor: pointer;
+}

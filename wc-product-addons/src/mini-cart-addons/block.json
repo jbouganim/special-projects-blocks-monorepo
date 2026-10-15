@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "a8csp/wc-product-addons-mini-cart",
+	"version": "0.1.0",
+	"title": "Mini-Cart Products with Add-ons",
+	"category": "woocommerce",
+	"icon": "cart",
+	"description": "The Mini-Cart products table, with each line's add-ons under it. Use it in place of the Mini-Cart Products Table block.",
+	"keywords": [ "mini-cart", "add-ons", "extras" ],
+	"supports": {
+		"html": false,
+		"inserter": true,
+		"multiple": false,
+		"reusable": false,
+		"interactivity": true
+	},
+	"textdomain": "wc-product-addons",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"viewScriptModule": "file:./view.js",
+	"render": "file:./render.php"
+}
