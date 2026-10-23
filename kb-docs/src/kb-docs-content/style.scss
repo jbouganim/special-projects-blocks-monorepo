@@ -15,6 +15,12 @@
 }
 
 .wp-block-a8csp-kb-docs-content {
+	// Headings receive programmatic focus after client navigation; they are
+	// not interactive, so no focus ring.
+	.a8csp-kbdocs-content h1[tabindex="-1"]:focus {
+		outline: none;
+	}
+
 	.a8csp-kbdocs-content.is-entering {
 		animation: a8csp-kbdocs-content-enter 160ms
 			cubic-bezier(0.2, 0, 0, 1) both;

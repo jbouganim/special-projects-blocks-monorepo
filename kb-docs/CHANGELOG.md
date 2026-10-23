@@ -1,3 +1,26 @@
+## 0.9.0 (2026-10-05)
+
+### Accessibility
+
+- Mobile sidebar drawer: exposed as a modal dialog (`role="dialog"`, `aria-modal`, label) while open; focus moves to the Close button, the rest of the page is made `inert`, and focus returns to the trigger on close. The trigger now has `aria-controls`.
+- Client-side navigation moves focus to the new page's `<h1>` (falls back to the content region) so screen readers announce the page change.
+- All Guides: article card titles render as `<h3>` (was `<h5>`) so they nest under their `<h2>` category heading. Visual size is unchanged (set by `has-medium-font-size`).
+- Breadcrumb: the mobile docs navigation trigger has a 44×44 tap target (was 20×20) with no visual change — padding offset by negative margins.
+
+### Performance
+
+- Sidebar: the category/article tree is cached in a transient (`a8csp_kb_docs_get_sidebar_tree()`) instead of being rebuilt on every request — ~760 queries / ~450ms down to ~15 queries / ~33ms per render. Per-page state (active item, expanded sections) is still applied at render time, so output is unchanged. The cache is invalidated when docs articles, categories, category assignments or category meta change; TTL filterable via `a8csp_kb_docs_sidebar_cache_ttl`.
+
+### Fixes
+
+- Client navigation only intercepts same-site KB Docs links. Links to other hosts, same-site pages outside the docs base, paths excluded via `a8csp_kb_docs_client_navigation_excluded_paths` (e.g. a standalone API reference at `/docs/api/`), and URLs whose fragment isn't a valid CSS id now load normally — fixes broken soft-nav renders, the `pushState` SecurityError on external links, and the `querySelector` SyntaxError on `#tag/...` fragments.
+- `a8csp_kb_docs_get_primary_term_for_post()` only honours `_kb_primary_category` while that term is still assigned to the article; a stale value (after recategorising) falls back to the assigned term, so breadcrumbs and active sidebar state follow the real category.
+
+### Improvements
+
+- All Guides: trimmed article excerpts end with an ellipsis, matching the core Post Excerpt block on category archives. Cache key bumped so stale excerpts are rebuilt on deploy.
+- All Guides: the template now stores small `perPage` values so the block editor previews a couple of sections instead of every category, with a `render_block_data` guard that restores the full limits on the front end.
+
 ## 0.8.0 (2026-09-02)
 
 ### New Features

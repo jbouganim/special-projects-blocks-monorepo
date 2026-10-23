@@ -111,9 +111,17 @@
 		display: flex;
 		align-items: center;
 
+		// 44×44 tap target (WCAG 2.5.8) around the 20px icon: padding grows the
+		// hit area, equal negative margins keep the icon and row where they were.
 		.a8csp-kbdocs-sidebar-trigger {
 			display: inline-flex;
-			margin-left: auto;
+			margin: -12px -12px -12px auto;
+			padding: 12px;
+
+			// Keep the focus ring hugging the icon rather than the larger hit area.
+			&:focus-visible {
+				outline-offset: -10px;
+			}
 		}
 
 		// Minimized trail (opt-out via the "Collapse on mobile" toggle): keep the

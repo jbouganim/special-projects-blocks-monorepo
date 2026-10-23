@@ -55,6 +55,7 @@ if ( $show_sidebar_button && a8csp_kb_docs_is_docs_request() ) {
 	$trigger_markup .= ' data-wp-on--click="actions.openMobileSidebar"';
 	$trigger_markup .= ' data-wp-bind--aria-expanded="state.isMobileSidebarOpen"';
 	$trigger_markup .= ' aria-expanded="false"';
+	$trigger_markup .= ' aria-controls="a8csp-kbdocs-sidebar-panel"';
 	$trigger_markup .= ' aria-label="' . esc_attr__( 'Open docs navigation', 'kb-docs' ) . '">';
 	$trigger_markup .= $trigger_icon;
 	$trigger_markup .= '</button>';

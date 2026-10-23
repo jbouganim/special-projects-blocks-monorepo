@@ -50,15 +50,20 @@ $nav_markup = '';
 wp_interactivity_state(
 	'a8cKBDocs',
 	array(
-		'isMobileSidebarOpen' => false,
+		'isMobileSidebarOpen'      => false,
+		'mobileSidebarDialogLabel' => __( 'Docs navigation', 'kb-docs' ),
 	)
 );
 
 if ( a8csp_kb_docs_is_docs_request() ) {
-	$sections = a8csp_kb_docs_get_top_level_terms(
+	$sections = a8csp_kb_docs_get_sidebar_tree(
 		$block_taxonomy,
+		$block_post_type,
+		$include_children,
 		$section_order_by,
-		$section_order
+		$section_order,
+		$article_order_by,
+		$article_order
 	);
 
 	if ( count( $sections ) > 0 ) {
@@ -116,7 +121,7 @@ if ( a8csp_kb_docs_is_docs_request() ) {
 		$nav_markup .= '<ul class="a8csp-kbdocs-sidebar-sections">';
 
 		foreach ( $sections as $section ) {
-			if ( ! ( $section instanceof WP_Term ) ) {
+			if ( ! is_array( $section ) ) {
 				continue;
 			}
 
@@ -125,13 +130,6 @@ if ( a8csp_kb_docs_is_docs_request() ) {
 				$expanded_ids,
 				$current_post_id,
 				$current_term_id,
-				$include_children,
-				$section_order_by,
-				$section_order,
-				$article_order_by,
-				$article_order,
-				$block_post_type,
-				$block_taxonomy,
 				$link_directives
 			);
 		}
@@ -147,6 +145,7 @@ $wrapper_extra = array(
 	'data-wp-interactive'                 => 'a8cKBDocs',
 	'data-wp-class--is-mobile-open'       => 'state.isMobileSidebarOpen',
 	'data-wp-on-window--keydown'          => 'actions.handleMobileSidebarKeydown',
+	'data-wp-watch'                       => 'callbacks.syncMobileSidebarFocus',
 );
 
 $block_spacing = isset( $block_attributes['style']['spacing'] ) && is_array( $block_attributes['style']['spacing'] )
@@ -176,8 +175,12 @@ $close_icon .= '</svg>';
 	></div>
 
 	<div
+		id="a8csp-kbdocs-sidebar-panel"
 		class="a8csp-kbdocs-sidebar-panel"
 		data-wp-class--is-open="state.isMobileSidebarOpen"
+		data-wp-bind--role="state.mobileSidebarRole"
+		data-wp-bind--aria-modal="state.mobileSidebarModal"
+		data-wp-bind--aria-label="state.mobileSidebarLabel"
 	>
 		<div class="a8csp-kbdocs-sidebar-mobile-header wpdocs-sidebar-row">
 			<p class="a8csp-kbdocs-sidebar-mobile-title">

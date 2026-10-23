@@ -59,7 +59,7 @@ function a8csp_kb_docs_is_all_guides_page(): bool {
  * @return string
  */
 function a8csp_kb_docs_get_all_guides_cache_key(): string {
-	return 'a8csp_kb_docs_all_guides_v1_' . md5(
+	return 'a8csp_kb_docs_all_guides_v2_' . md5(
 		a8csp_kb_docs_get_post_type() . '|' . a8csp_kb_docs_get_taxonomy()
 	);
 }
@@ -85,7 +85,7 @@ function a8csp_kb_docs_get_all_guides_article_excerpt( WP_Post $post ): string {
 		return '';
 	}
 
-	return wp_trim_words( $excerpt, 15, '' );
+	return wp_trim_words( $excerpt, 15 );
 }
 
 /**
@@ -284,10 +284,10 @@ function a8csp_kb_docs_render_all_guides_article_row( array $article ): string {
 	$markup .= '<div class="wp-block-columns are-vertically-aligned-center is-layout-flex wp-block-columns-is-layout-flex">';
 	$markup .= '<div class="wp-block-column is-vertically-aligned-center is-layout-flow wp-block-column-is-layout-flow">';
 	$markup .= '<div class="wp-block-group wp-block-group-all-guides-article-row is-style-default is-vertical is-layout-flex wp-block-group-is-layout-flex">';
-	$markup .= '<h5 class="has-text-align-left wp-block-post-title has-medium-font-size">';
+	$markup .= '<h3 class="has-text-align-left wp-block-post-title has-medium-font-size">';
 	$markup .= '<a href="' . esc_url( $permalink ) . '" target="_self">';
 	$markup .= esc_html( $title );
-	$markup .= '</a></h5>';
+	$markup .= '</a></h3>';
 
 	if ( is_string( $excerpt ) && '' !== $excerpt ) {
 		$markup .= '<div class="has-link-color wp-block-post-excerpt has-text-color has-base-3-color has-tiny-font-size">';
@@ -399,6 +399,73 @@ function a8csp_kb_docs_pre_render_all_guides_terms_query( $pre_render, array $pa
 	return a8csp_kb_docs_get_all_guides_sections_markup();
 }
 add_filter( 'pre_render_block', 'a8csp_kb_docs_pre_render_all_guides_terms_query', 10, 2 );
+
+/**
+ * Full per-page limit used when rendering All Guides on the front end.
+ *
+ * @return int
+ */
+function a8csp_kb_docs_get_all_guides_render_limit(): int {
+	/**
+	 * Filters the All Guides front-end per-page limit.
+	 *
+	 * @param int $limit Maximum terms/articles rendered per query.
+	 */
+	return (int) apply_filters( 'a8csp_kb_docs_all_guides_render_limit', 100 );
+}
+
+/**
+ * Restore full query limits when rendering All Guides on the front end.
+ *
+ * The page-all-guides.html template deliberately stores small `perPage` values.
+ * The editor
+ * renders every term's inner Query Loop in full and cannot scope those loops to
+ * their term (core/query does not consume `termId` context), so a complete
+ * preview is both slow and inaccurate; the small values keep it to a couple of
+ * representative sections.
+ *
+ * The front end normally never reads them — the whole Terms Query is
+ * short-circuited by a8csp_kb_docs_pre_render_all_guides_terms_query(). This
+ * filter is the safety net: if that short-circuit is ever bypassed, the page
+ * falls back to core block rendering with the real limits instead of silently
+ * publishing two categories.
+ *
+ * @param array<string, mixed> $parsed_block Parsed block data.
+ * @return array<string, mixed>
+ */
+function a8csp_kb_docs_restore_all_guides_render_limits( array $parsed_block ): array {
+	if ( is_admin() || ! a8csp_kb_docs_is_all_guides_page() ) {
+		return $parsed_block;
+	}
+
+	$block_name = isset( $parsed_block['blockName'] ) && is_string( $parsed_block['blockName'] )
+		? $parsed_block['blockName']
+		: '';
+
+	if ( 'core/terms-query' === $block_name && isset( $parsed_block['attrs']['termQuery'] ) && is_array( $parsed_block['attrs']['termQuery'] ) ) {
+		$parsed_block['attrs']['termQuery']['perPage'] = a8csp_kb_docs_get_all_guides_render_limit();
+
+		return $parsed_block;
+	}
+
+	if ( 'core/query' !== $block_name || ! isset( $parsed_block['attrs']['query'] ) || ! is_array( $parsed_block['attrs']['query'] ) ) {
+		return $parsed_block;
+	}
+
+	$class_name = isset( $parsed_block['attrs']['className'] ) && is_string( $parsed_block['attrs']['className'] )
+		? $parsed_block['attrs']['className']
+		: '';
+	$namespace  = isset( $parsed_block['attrs']['namespace'] ) && is_string( $parsed_block['attrs']['namespace'] )
+		? $parsed_block['attrs']['namespace']
+		: '';
+
+	if ( str_contains( $class_name, 'kb-docs-all-guides-articles' ) || 'kb-docs-all-guides-articles' === $namespace ) {
+		$parsed_block['attrs']['query']['perPage'] = a8csp_kb_docs_get_all_guides_render_limit();
+	}
+
+	return $parsed_block;
+}
+add_filter( 'render_block_data', 'a8csp_kb_docs_restore_all_guides_render_limits' );
 
 /**
  * Scope Query Loop blocks inside the All Guides Term Template to the current term.

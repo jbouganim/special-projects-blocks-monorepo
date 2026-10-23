@@ -9,7 +9,17 @@
  * @var WP_Block $block      Block instance.
  */
 
-$use_interactivity  = a8csp_kb_docs_content_use_interactivity();
+$use_interactivity = a8csp_kb_docs_content_use_interactivity();
+
+if ( $use_interactivity ) {
+	wp_interactivity_state(
+		'a8cKBDocs',
+		array(
+			'clientNavigation' => a8csp_kb_docs_get_client_navigation_config(),
+		)
+	);
+}
+
 $view_attributes    = a8csp_kb_docs_get_view_attributes();
 $wrapper_attributes = get_block_wrapper_attributes();
 $inner_content      = $use_interactivity

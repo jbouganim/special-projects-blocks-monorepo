@@ -197,6 +197,92 @@ function a8csp_kb_docs_content_use_interactivity(): bool {
 }
 
 /**
+ * Paths under the docs base that are not KB Docs pages (e.g. a standalone
+ * API reference app), normalised to `/path/`. Client navigation skips them.
+ *
+ * @return array<int, string>
+ */
+function a8csp_kb_docs_get_client_navigation_excluded_paths(): array {
+	/**
+	 * Filters same-site paths that must load with a full page request.
+	 *
+	 * @param array<int, string> $paths Paths such as '/docs/api/'.
+	 */
+	$paths = (array) apply_filters( 'a8csp_kb_docs_client_navigation_excluded_paths', array() );
+
+	$normalized = array();
+	foreach ( $paths as $path ) {
+		if ( is_string( $path ) && '' !== trim( $path, '/' ) ) {
+			$normalized[] = '/' . trim( $path, '/' ) . '/';
+		}
+	}
+
+	return array_values( array_unique( $normalized ) );
+}
+
+/**
+ * Client-navigation settings shared with the view script (state.clientNavigation).
+ *
+ * @return array{basePath: string, excludedPaths: array<int, string>}
+ */
+function a8csp_kb_docs_get_client_navigation_config(): array {
+	$base_path = (string) wp_parse_url( home_url( '/' . trim( a8csp_kb_docs_get_base_path(), '/' ) . '/' ), PHP_URL_PATH );
+
+	return array(
+		'basePath'      => '/' . trim( $base_path, '/' ) . '/',
+		'excludedPaths' => a8csp_kb_docs_get_client_navigation_excluded_paths(),
+	);
+}
+
+/**
+ * Whether a link can be opened with the Interactivity API router.
+ *
+ * Only same-site KB Docs URLs qualify: the router can only swap in pages that
+ * render the KB Docs regions, it cannot pushState to another origin, and it
+ * passes the URL fragment to querySelector().
+ *
+ * @param string $href Link URL.
+ * @return bool
+ */
+function a8csp_kb_docs_is_client_navigable_url( string $href ): bool {
+	$url = wp_parse_url( $href );
+	if ( false === $url ) {
+		return false;
+	}
+
+	if ( isset( $url['host'] ) ) {
+		$home_host = (string) wp_parse_url( home_url( '/' ), PHP_URL_HOST );
+		if ( strtolower( $url['host'] ) !== strtolower( $home_host ) ) {
+			return false;
+		}
+	}
+
+	$path = isset( $url['path'] ) ? (string) $url['path'] : '';
+	if ( '' === $path || '/' !== $path[0] ) {
+		return false;
+	}
+
+	if ( isset( $url['fragment'] ) && 1 !== preg_match( '/^[A-Za-z_][A-Za-z0-9_-]*$/', $url['fragment'] ) ) {
+		return false;
+	}
+
+	$path   = '/' . trim( $path, '/' ) . '/';
+	$config = a8csp_kb_docs_get_client_navigation_config();
+
+	if ( ! str_starts_with( $path, $config['basePath'] ) ) {
+		return false;
+	}
+
+	foreach ( $config['excludedPaths'] as $excluded_path ) {
+		if ( str_starts_with( $path, $excluded_path ) ) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
  * Add interactivity link directives to anchor tags in HTML content.
  *
  *
@@ -229,6 +315,10 @@ function a8csp_kb_docs_add_link_directives_to_anchors( string $html ): string {
 			continue;
 		}
 
+		if ( ! a8csp_kb_docs_is_client_navigable_url( $href ) ) {
+			continue;
+		}
+
 		$processor->set_attribute( 'data-wp-on--mouseenter', 'actions.prefetch' );
 		$processor->set_attribute( 'data-wp-on--click', 'actions.navigate' );
 	}
@@ -249,14 +339,6 @@ function a8csp_kb_docs_get_primary_term_for_post( int $post_id, ?string $taxonom
 		? $taxonomy
 		: a8csp_kb_docs_get_taxonomy();
 
-	$primary_term_id = (int) get_post_meta( $post_id, '_kb_primary_category', true );
-	if ( $primary_term_id > 0 ) {
-		$primary_term = get_term( $primary_term_id, $taxonomy );
-		if ( $primary_term instanceof WP_Term ) {
-			return $primary_term;
-		}
-	}
-
 	$terms = wp_get_post_terms(
 		$post_id,
 		$taxonomy,
@@ -268,6 +350,16 @@ function a8csp_kb_docs_get_primary_term_for_post( int $post_id, ?string $taxonom
 
 	if ( ! is_array( $terms ) || count( $terms ) < 1 ) {
 		return null;
+	}
+
+	// Honour _kb_primary_category only while that term is still assigned —
+	// it goes stale when an article is recategorised.
+	$primary_term_id = (int) get_post_meta( $post_id, '_kb_primary_category', true );
+
+	foreach ( $terms as $term ) {
+		if ( $term instanceof WP_Term && (int) $term->term_id === $primary_term_id ) {
+			return $term;
+		}
 	}
 
 	$first_term = reset( $terms );
@@ -578,53 +670,28 @@ function a8csp_kb_docs_get_sidebar_chevron_markup(): string {
 }
 
 /**
- * Render a sidebar navigation term branch (recursive).
+ * Render a sidebar navigation term branch (recursive) from a cached tree node.
  *
- * @param WP_Term     $term              Term to render.
- * @param array<int>  $expanded_term_ids Term IDs that should start expanded.
- * @param int         $current_post_id   Current article ID, or 0.
- * @param int|null    $current_term_id   Current term ID, or null.
- * @param bool        $include_children  Whether nested child terms are included.
- * @param string      $section_order_by  Term orderby.
- * @param string      $section_order     Term order.
- * @param string      $article_order_by  Article orderby.
- * @param string      $article_order     Article order.
- * @param string      $post_type         Post type slug.
- * @param string      $taxonomy          Taxonomy slug.
- * @param string      $link_directives   Interactivity link directives.
+ * @param array<string, mixed> $node              Node from a8csp_kb_docs_get_sidebar_tree().
+ * @param array<int>           $expanded_term_ids Term IDs that should start expanded.
+ * @param int                  $current_post_id   Current article ID, or 0.
+ * @param int|null             $current_term_id   Current term ID, or null.
+ * @param string               $link_directives   Interactivity link directives.
  *
  * @return string
  */
 function a8csp_kb_docs_render_sidebar_term_branch(
-	WP_Term $term,
+	array $node,
 	array $expanded_term_ids,
 	int $current_post_id,
 	?int $current_term_id,
-	bool $include_children,
-	string $section_order_by,
-	string $section_order,
-	string $article_order_by,
-	string $article_order,
-	string $post_type,
-	string $taxonomy,
 	string $link_directives
 ): string {
-	$term_id = (int) $term->term_id;
+	$term_id         = (int) ( $node['id'] ?? 0 );
+	$child_nodes     = is_array( $node['children'] ?? null ) ? $node['children'] : array();
+	$direct_articles = is_array( $node['articles'] ?? null ) ? $node['articles'] : array();
 
-	$child_terms = $include_children
-		? a8csp_kb_docs_get_child_terms( $term_id, $taxonomy, $section_order_by, $section_order )
-		: array();
-
-	$direct_articles = a8csp_kb_docs_get_articles_for_term(
-		$term_id,
-		false,
-		$article_order_by,
-		$article_order,
-		$post_type,
-		$taxonomy
-	);
-
-	$has_children = count( $child_terms ) > 0 || count( $direct_articles ) > 0;
+	$has_children = count( $child_nodes ) > 0 || count( $direct_articles ) > 0;
 	$is_expanded  = in_array( $term_id, $expanded_term_ids, true );
 	$is_active    = null !== $current_term_id && $term_id === $current_term_id;
 
@@ -653,6 +720,7 @@ function a8csp_kb_docs_render_sidebar_term_branch(
 	}
 
 	$term_link_class_attr = esc_attr( implode( ' ', $term_link_classes ) );
+	$term_name            = (string) ( $node['name'] ?? '' );
 
 	if ( $has_children ) {
 		// Expandable terms toggle only — category pages open via server/IAPI state.
@@ -660,55 +728,48 @@ function a8csp_kb_docs_render_sidebar_term_branch(
 		$markup .= ' data-wp-on--click="actions.toggleTerm"';
 		$markup .= ' data-wp-bind--aria-expanded="state.isTermExpanded"';
 		$markup .= ' aria-expanded="' . ( $is_expanded ? 'true' : 'false' ) . '">';
-		$markup .= '<span class="a8csp-kbdocs-sidebar-term-label">' . esc_html( $term->name ) . '</span>';
+		$markup .= '<span class="a8csp-kbdocs-sidebar-term-label">' . esc_html( $term_name ) . '</span>';
 		$markup .= a8csp_kb_docs_get_sidebar_chevron_markup();
 		$markup .= '</button>';
 	} else {
-		$markup .= '<a href="' . esc_url( get_term_link( $term ) ) . '"';
+		$markup .= '<a href="' . esc_url( (string) ( $node['link'] ?? '' ) ) . '"';
 		$markup .= ' class="' . $term_link_class_attr . '"';
 		$markup .= ' data-wp-on--mouseenter="actions.prefetch"';
 		$markup .= ' data-wp-on--click="actions.navigate">';
-		$markup .= '<span class="a8csp-kbdocs-sidebar-term-label">' . esc_html( $term->name ) . '</span>';
+		$markup .= '<span class="a8csp-kbdocs-sidebar-term-label">' . esc_html( $term_name ) . '</span>';
 		$markup .= '</a>';
 	}
 
 	if ( $has_children ) {
 		$markup .= '<ul class="a8csp-kbdocs-sidebar-children">';
 
-		foreach ( $child_terms as $child_term ) {
-			if ( ! ( $child_term instanceof WP_Term ) ) {
+		foreach ( $child_nodes as $child_node ) {
+			if ( ! is_array( $child_node ) ) {
 				continue;
 			}
 
 			$markup .= a8csp_kb_docs_render_sidebar_term_branch(
-				$child_term,
+				$child_node,
 				$expanded_term_ids,
 				$current_post_id,
 				$current_term_id,
-				$include_children,
-				$section_order_by,
-				$section_order,
-				$article_order_by,
-				$article_order,
-				$post_type,
-				$taxonomy,
 				$link_directives
 			);
 		}
 
 		foreach ( $direct_articles as $article ) {
-			if ( ! ( $article instanceof WP_Post ) ) {
+			if ( ! is_array( $article ) ) {
 				continue;
 			}
 
 			$is_active_article = $current_post_id > 0 &&
-				$current_post_id === (int) $article->ID;
+				(int) ( $article['id'] ?? 0 ) === $current_post_id;
 			$article_class     = $is_active_article ? ' class="is-active"' : '';
 
 			$markup .= '<li class="a8csp-kbdocs-sidebar-article">';
-			$markup .= '<a href="' . esc_url( get_permalink( $article ) ) . '"';
+			$markup .= '<a href="' . esc_url( (string) ( $article['link'] ?? '' ) ) . '"';
 			$markup .= $link_directives . $article_class . '>';
-			$markup .= esc_html( get_the_title( $article ) );
+			$markup .= esc_html( (string) ( $article['title'] ?? '' ) );
 			$markup .= '</a>';
 			$markup .= '</li>';
 		}
