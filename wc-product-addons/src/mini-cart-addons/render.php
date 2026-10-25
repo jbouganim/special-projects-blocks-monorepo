@@ -66,9 +66,71 @@ wp_interactivity_config(
 		/* translators: %s: add-on name. */
 		'removeLabel'   => __( 'Remove %s from cart', 'wc-product-addons' ),
 		/* translators: %s: add-on name. */
-		'detailsLabel'  => apply_filters('a8csp_wcpa_details_label', __( 'Details for %s', 'wc-product-addons' ) ),
+		'detailsLabel'  => apply_filters( 'a8csp_wcpa_details_label', __( 'Details for %s', 'wc-product-addons' ) ),
 		'genericError'  => __( 'Something went wrong. Please try again.', 'wc-product-addons' ),
 		'debounceMs'    => 400,
+	)
+);
+
+/*
+ * Server versions of the state the add-ons markup needs, so rows WooCommerce renders on the server
+ * include their add-ons (the browser then takes them over instead of redrawing them). They read the
+ * row's `cartItem` from WooCommerce's context; everything else is filled in by view.js.
+ */
+$a8csp_wcpa_cart_item = static function () {
+	$context = wp_interactivity_get_context( 'woocommerce' );
+	$item    = $context['cartItem'] ?? array();
+
+	// The cart state comes from a Store API response: nested values may still be objects.
+	$item = json_decode( (string) wp_json_encode( $item ), true );
+
+	return is_array( $item ) ? $item : array();
+};
+
+$a8csp_wcpa_addon = static function () {
+	$context = wp_interactivity_get_context( 'a8csp/wc-product-addons' );
+
+	return is_array( $context['addon'] ?? null ) ? $context['addon'] : array();
+};
+
+wp_interactivity_state(
+	$a8csp_wcpa_namespace,
+	array(
+		'addons'       => static function () use ( $a8csp_wcpa_cart_item ) {
+			$item = $a8csp_wcpa_cart_item();
+
+			return array_values( (array) ( $item['extensions']['a8csp_wcpa']['addons'] ?? array() ) );
+		},
+		'hasAddons'    => static function () use ( $a8csp_wcpa_cart_item ) {
+			$item = $a8csp_wcpa_cart_item();
+
+			return ! empty( $item['extensions']['a8csp_wcpa']['addons'] );
+		},
+		'isAddonRow'   => static function () use ( $a8csp_wcpa_cart_item ) {
+			$item = $a8csp_wcpa_cart_item();
+
+			return ! empty( $item['extensions']['a8csp_wcpa']['is_addon'] );
+		},
+		'rowKey'       => static function () use ( $a8csp_wcpa_cart_item ) {
+			$item = $a8csp_wcpa_cart_item();
+
+			return (string) ( $item['key'] ?? '' );
+		},
+		'rowProductId' => static function () use ( $a8csp_wcpa_cart_item ) {
+			$item = $a8csp_wcpa_cart_item();
+
+			return (int) ( $item['id'] ?? 0 );
+		},
+		'quantity'     => static function () use ( $a8csp_wcpa_addon ) {
+			$addon = $a8csp_wcpa_addon();
+
+			return (int) ( $addon['in_cart']['quantity'] ?? 0 );
+		},
+		'isAdded'      => static function () use ( $a8csp_wcpa_addon ) {
+			$addon = $a8csp_wcpa_addon();
+
+			return (int) ( $addon['in_cart']['quantity'] ?? 0 ) > 0;
+		},
 	)
 );
 
@@ -134,7 +196,7 @@ ob_start();
 					</div>
 					<p class="a8csp-wcpa-addon__description" data-wp-text="a8csp/wc-product-addons::context.addon.short_description" data-wp-bind--hidden="a8csp/wc-product-addons::!context.addon.short_description"></p>
 					<button type="button" class="a8csp-wcpa-addon__details" data-wp-bind--hidden="a8csp/wc-product-addons::!context.addon.has_details" data-wp-bind--aria-label="a8csp/wc-product-addons::state.detailsLabel" data-wp-on--click="a8csp/wc-product-addons::actions.openDetails">
-						<?php echo apply_filters('a8csp_wcpa_details_label', esc_html__( 'Details', 'wc-product-addons' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by core. ?>
+						<?php echo apply_filters( 'a8csp_wcpa_details_label', esc_html__( 'Details', 'wc-product-addons' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by core. ?>
 					</button>
 					<div class="a8csp-wcpa-addon__actions">
 						<button type="button" class="a8csp-wcpa-addon__add wp-element-button" data-wp-bind--hidden="a8csp/wc-product-addons::state.isAdded" data-wp-bind--aria-label="a8csp/wc-product-addons::state.addLabel" data-wp-on--click="a8csp/wc-product-addons::actions.add">
@@ -142,7 +204,7 @@ ob_start();
 						</button>
 						<div class="a8csp-wcpa-addon__quantity wc-block-components-quantity-selector" data-wp-bind--hidden="a8csp/wc-product-addons::!state.isAdded">
 							<button type="button" class="wc-block-components-quantity-selector__button wc-block-components-quantity-selector__button--minus" data-wp-bind--aria-label="a8csp/wc-product-addons::state.reduceLabel" data-wp-on--click="a8csp/wc-product-addons::actions.decrement">&minus;</button>
-							<input class="wc-block-components-quantity-selector__input" type="number" step="1" min="0" data-wp-bind--max="a8csp/wc-product-addons::state.max" data-wp-bind--value="a8csp/wc-product-addons::state.quantity" data-wp-bind--aria-label="a8csp/wc-product-addons::state.quantityLabel" data-wp-on--change="a8csp/wc-product-addons::actions.changeQuantity">
+							<input class="wc-block-components-quantity-selector__input" name="a8csp_wcpa_quantity" type="number" step="1" min="0" data-wp-bind--max="a8csp/wc-product-addons::state.max" data-wp-bind--value="a8csp/wc-product-addons::state.quantity" data-wp-bind--aria-label="a8csp/wc-product-addons::state.quantityLabel" data-wp-on--change="a8csp/wc-product-addons::actions.changeQuantity">
 							<button type="button" class="wc-block-components-quantity-selector__button wc-block-components-quantity-selector__button--plus" data-wp-bind--disabled="a8csp/wc-product-addons::state.maximumReached" data-wp-bind--aria-label="a8csp/wc-product-addons::state.increaseLabel" data-wp-on--click="a8csp/wc-product-addons::actions.increment">+</button>
 						</div>
 						<span class="a8csp-wcpa-addon__total" data-wp-bind--hidden="a8csp/wc-product-addons::!state.isAdded"><?php echo a8csp_wcpa_price_markup( 'addonTotal' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped markup. ?></span>
