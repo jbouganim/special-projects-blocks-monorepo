@@ -65,8 +65,10 @@ wp_interactivity_config(
 		'quantityLabel' => __( 'Quantity of %s in your cart.', 'wc-product-addons' ),
 		/* translators: %s: add-on name. */
 		'removeLabel'   => __( 'Remove %s from cart', 'wc-product-addons' ),
+		// Fallback only: each add-on's data has its own `details_aria_label` (a8csp_wcpa_get_details_aria_label()).
 		/* translators: %s: add-on name. */
-		'detailsLabel'  => apply_filters( 'a8csp_wcpa_details_label', __( 'Details for %s', 'wc-product-addons' ) ),
+		'detailsLabel'  => __( 'Details for %s', 'wc-product-addons' ),
+		'detailsText'   => __( 'Details', 'wc-product-addons' ),
 		'genericError'  => __( 'Something went wrong. Please try again.', 'wc-product-addons' ),
 		'debounceMs'    => 400,
 	)
@@ -130,6 +132,11 @@ wp_interactivity_state(
 			$addon = $a8csp_wcpa_addon();
 
 			return (int) ( $addon['in_cart']['quantity'] ?? 0 ) > 0;
+		},
+		'detailsText'  => static function () use ( $a8csp_wcpa_addon ) {
+			$addon = $a8csp_wcpa_addon();
+
+			return (string) ( $addon['details_label'] ?? __( 'Details', 'wc-product-addons' ) );
 		},
 	)
 );
@@ -195,8 +202,8 @@ ob_start();
 						<span class="a8csp-wcpa-addon__price"><?php echo a8csp_wcpa_price_markup( 'addonUnit' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped markup. ?></span>
 					</div>
 					<p class="a8csp-wcpa-addon__description" data-wp-text="a8csp/wc-product-addons::context.addon.short_description" data-wp-bind--hidden="a8csp/wc-product-addons::!context.addon.short_description"></p>
-					<button type="button" class="a8csp-wcpa-addon__details" data-wp-bind--hidden="a8csp/wc-product-addons::!context.addon.has_details" data-wp-bind--aria-label="a8csp/wc-product-addons::state.detailsLabel" data-wp-on--click="a8csp/wc-product-addons::actions.openDetails">
-						<?php echo apply_filters( 'a8csp_wcpa_details_label', esc_html__( 'Details', 'wc-product-addons' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by core. ?>
+					<button type="button" class="a8csp-wcpa-addon__details" data-wp-bind--hidden="a8csp/wc-product-addons::!context.addon.has_details" data-wp-bind--aria-label="a8csp/wc-product-addons::state.detailsLabel" data-wp-on--click="a8csp/wc-product-addons::actions.openDetails" data-wp-text="a8csp/wc-product-addons::state.detailsText">
+						<?php esc_html_e( 'Details', 'wc-product-addons' ); ?>
 					</button>
 					<div class="a8csp-wcpa-addon__actions">
 						<button type="button" class="a8csp-wcpa-addon__add wp-element-button" data-wp-bind--hidden="a8csp/wc-product-addons::state.isAdded" data-wp-bind--aria-label="a8csp/wc-product-addons::state.addLabel" data-wp-on--click="a8csp/wc-product-addons::actions.add">

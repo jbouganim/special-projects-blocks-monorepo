@@ -48,10 +48,20 @@ class Blocks_Integration implements IntegrationInterface {
 		wp_register_script(
 			self::NAME,
 			plugins_url( 'build/cart-checkout/index.js', A8CSP_WCPA_FILE ),
-			array_merge( $asset['dependencies'], array( 'wc-blocks-checkout' ) ),
+			array_unique( array_merge( $asset['dependencies'], array( 'wc-blocks-checkout', 'wp-data' ) ) ),
 			$asset['version'],
 			true
 		);
+
+		// The details dialog's structural styles, enqueued when the Cart or Checkout block renders (Blocks).
+		if ( file_exists( A8CSP_WCPA_DIR . '/build/cart-checkout/index.css' ) ) {
+			wp_register_style(
+				self::NAME,
+				plugins_url( 'build/cart-checkout/index.css', A8CSP_WCPA_FILE ),
+				array(),
+				$asset['version']
+			);
+		}
 	}
 
 	/**

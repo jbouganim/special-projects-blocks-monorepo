@@ -1,0 +1,26 @@
+// The add-on details dialog (mini-cart block and Cart / Checkout blocks). Structural only.
+
+.a8csp-wcpa-details {
+	max-width: min(40rem, calc(100vw - 2rem));
+	max-height: calc(100dvh - 2rem);
+	overflow: auto;
+
+	&::backdrop {
+		background: rgba(0, 0, 0, 0.6);
+	}
+}
+
+.a8csp-wcpa-details__header {
+	display: flex;
+	align-items: start;
+	justify-content: space-between;
+	gap: 1em;
+}
+
+.a8csp-wcpa-details__close {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	cursor: pointer;
+}

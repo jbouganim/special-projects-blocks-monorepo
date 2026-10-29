@@ -1,7 +1,10 @@
 /**
  * Cart and Checkout blocks: class names on add-on lines and on lines that have add-ons,
  * so themes can nest them visually (the server keeps each add-on right after its line).
+ * Also handles the add-ons' details links (details.js).
  */
+import './details';
+import './details.scss';
 
 const { registerCheckoutFilters } = window.wc?.blocksCheckout || {};
 

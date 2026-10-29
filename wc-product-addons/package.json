@@ -1,6 +1,6 @@
 {
 	"name": "wc-product-addons",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Sell add-on products (dinner, drinks, extras) attached to a parent cart line, chosen in the WooCommerce mini-cart.",
 	"author": "Automattic Special Projects Team",
 	"license": "GPL-2.0-or-later",

@@ -428,15 +428,54 @@ class Cart {
 		 * @param bool                 $show      Whether to show it.
 		 * @param array<string, mixed> $cart_item Cart item.
 		 */
-		if ( '' === $summary || ! apply_filters( 'a8csp_wcpa_show_description_item_data', true, $cart_item ) ) {
-			return $item_data;
+		if ( '' !== $summary && apply_filters( 'a8csp_wcpa_show_description_item_data', true, $cart_item ) ) {
+			$item_data[] = array(
+				'key'   => 'Description',
+				'value' => $summary,
+			);
 		}
 
-		$item_data[] = array(
-			'key'   => 'Description',
-			'value' => $summary,
-		);
+		$details_link = self::details_link_item_data( $cart_item );
+		if ( array() !== $details_link ) {
+			$item_data[] = $details_link;
+		}
 
 		return $item_data;
+	}
+
+	/**
+	 * Add-on lines: a details link as an item detail, for add-ons with a description. Off by default
+	 * (`a8csp_wcpa_show_details_link_item_data`). In the Cart and Checkout blocks the link opens the
+	 * description in a dialog (build/cart-checkout); it has no name, so only the link shows.
+	 *
+	 * @param array<string, mixed> $cart_item Add-on cart item.
+	 *
+	 * @return array<string, string> Item detail, or an empty array.
+	 */
+	private static function details_link_item_data( $cart_item ) {
+		$addon = $cart_item['data'];
+
+		/**
+		 * Filters whether add-on lines show a details link as an item detail (Cart and Checkout blocks).
+		 * Off by default; the link only shows for add-ons with a description.
+		 *
+		 * @param bool                 $show      Whether to show it.
+		 * @param array<string, mixed> $cart_item Cart item.
+		 */
+		if ( empty( $cart_item['key'] ) || '' === a8csp_wcpa_get_addon_details( $addon ) || ! apply_filters( 'a8csp_wcpa_show_details_link_item_data', false, $cart_item ) ) {
+			return array();
+		}
+
+		return array(
+			'key'       => '',
+			'name'      => '',
+			'value'     => sprintf(
+				'<a href="#a8csp-wcpa-details-%1$s" class="a8csp-wcpa-cart-details" title="%2$s">%3$s</a>',
+				esc_attr( (string) $cart_item['key'] ),
+				esc_attr( a8csp_wcpa_get_details_aria_label( $addon ) ),
+				esc_html( a8csp_wcpa_get_details_label( $addon ) )
+			),
+			'className' => 'wc-block-components-product-details__a8csp-wcpa-details',
+		);
 	}
 }

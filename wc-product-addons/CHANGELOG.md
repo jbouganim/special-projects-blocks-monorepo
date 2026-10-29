@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.2.0
+
+### Added
+
+- "No add-ons" option on variations: the variation offers no add-ons, not even its product's (`_a8csp_wcpa_no_addons`). Its own list is kept, so unticking brings it back.
+- "Details link text" on add-on products (`_a8csp_wcpa_details_label`), e.g. "Menu details". In the Store API data as `details_label` and `details_aria_label`; `a8csp_wcpa_get_details_label()` / `a8csp_wcpa_get_details_aria_label()`.
+- Details link on add-on lines in the Cart and Checkout blocks, opening the same dialog as the mini-cart. Off by default: `add_filter( 'a8csp_wcpa_show_details_link_item_data', '__return_true' )`.
+- `a8csp_wcpa_details_aria_label` filter.
+
+### Fixed
+
+- `a8csp_wcpa_details_label` filtered both the visible "Details" text and the "Details for %s" accessible name, so changing it broke the accessible name. It now filters the link text only (and gets the add-on as a second argument); the accessible name has its own filter.
+
 ## 0.1.0
 
 ### Added

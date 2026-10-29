@@ -264,8 +264,18 @@ const { state } = store( NAMESPACE, {
 		get removeLabel() {
 			return label( 'removeLabel' );
 		},
+		// The add-on's own link text and accessible name (Store API), with the config's as fallback.
+		get detailsText() {
+			return (
+				getContext( NAMESPACE ).addon?.details_label ||
+				getConfig( NAMESPACE ).detailsText
+			);
+		},
 		get detailsLabel() {
-			return label( 'detailsLabel' );
+			return (
+				getContext( NAMESPACE ).addon?.details_aria_label ||
+				label( 'detailsLabel' )
+			);
 		},
 	},
 

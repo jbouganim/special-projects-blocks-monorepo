@@ -30,6 +30,16 @@ const A8CSP_WCPA_META_QUANTITY_LIMIT = '_a8csp_wcpa_quantity_limit';
 const A8CSP_WCPA_META_ADDONS = '_a8csp_wcpa_addons';
 
 /**
+ * Variation meta: 'yes' when the variation offers no add-ons, not even its product's.
+ */
+const A8CSP_WCPA_META_NO_ADDONS = '_a8csp_wcpa_no_addons';
+
+/**
+ * Product meta: the text of an add-on's details link (empty for the default, "Details").
+ */
+const A8CSP_WCPA_META_DETAILS_LABEL = '_a8csp_wcpa_details_label';
+
+/**
  * Cart item data key holding `parent_key` on add-on lines.
  */
 const A8CSP_WCPA_CART_KEY = 'a8csp_wcpa';
@@ -102,8 +112,8 @@ function a8csp_wcpa_get_addon_limit( $addon ) {
 }
 
 /**
- * IDs of the add-ons offered with a product. A variation with its own list uses it; otherwise it
- * inherits its parent product's list.
+ * IDs of the add-ons offered with a product. A variation with its own list uses it; a variation set
+ * to "No add-ons" offers none; otherwise it inherits its parent product's list.
  *
  * @param WC_Product|int $product Product, variation or ID.
  *
@@ -116,9 +126,10 @@ function a8csp_wcpa_get_addon_ids( $product ) {
 		return array();
 	}
 
-	$ids = array_filter( array_map( 'absint', (array) $product->get_meta( A8CSP_WCPA_META_ADDONS ) ) );
+	$no_addons = 'yes' === $product->get_meta( A8CSP_WCPA_META_NO_ADDONS );
+	$ids       = $no_addons ? array() : array_filter( array_map( 'absint', (array) $product->get_meta( A8CSP_WCPA_META_ADDONS ) ) );
 
-	if ( array() === $ids && $product->get_parent_id() ) {
+	if ( ! $no_addons && array() === $ids && $product->get_parent_id() ) {
 		$parent = wc_get_product( $product->get_parent_id() );
 		$ids    = $parent instanceof WC_Product ? array_filter( array_map( 'absint', (array) $parent->get_meta( A8CSP_WCPA_META_ADDONS ) ) ) : array();
 	}
@@ -232,6 +243,45 @@ function a8csp_wcpa_get_addon_details( $addon ) {
 	}
 
 	return wc_format_content( wp_kses_post( $addon->get_description() ) );
+}
+
+/**
+ * The text of an add-on's details link: its own (Add-on settings), or "Details".
+ *
+ * @param WC_Product $addon Add-on product.
+ *
+ * @return string
+ */
+function a8csp_wcpa_get_details_label( $addon ) {
+	$label = $addon instanceof WC_Product ? trim( (string) $addon->get_meta( A8CSP_WCPA_META_DETAILS_LABEL ) ) : '';
+
+	/**
+	 * Filters the text of an add-on's details link (mini-cart and Cart block).
+	 *
+	 * @param string          $label Link text.
+	 * @param WC_Product|null $addon Add-on product.
+	 */
+	return (string) apply_filters( 'a8csp_wcpa_details_label', '' !== $label ? $label : __( 'Details', 'wc-product-addons' ), $addon );
+}
+
+/**
+ * The accessible name of an add-on's details link, e.g. "Details for Prix fixe menu".
+ *
+ * @param WC_Product $addon Add-on product.
+ *
+ * @return string
+ */
+function a8csp_wcpa_get_details_aria_label( $addon ) {
+	/* translators: 1: details link text, 2: add-on name. */
+	$label = sprintf( __( '%1$s for %2$s', 'wc-product-addons' ), a8csp_wcpa_get_details_label( $addon ), a8csp_wcpa_plain_text( $addon->get_name() ) );
+
+	/**
+	 * Filters the accessible name of an add-on's details link.
+	 *
+	 * @param string     $label Accessible name.
+	 * @param WC_Product $addon Add-on product.
+	 */
+	return (string) apply_filters( 'a8csp_wcpa_details_aria_label', $label, $addon );
 }
 
 /**

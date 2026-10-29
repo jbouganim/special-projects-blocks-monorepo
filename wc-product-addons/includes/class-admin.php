@@ -58,20 +58,24 @@ class Admin {
 	}
 
 	/**
-	 * Quantity rule, in the General tab of simple products.
+	 * Add-on settings (quantity rule, details link text), in the General tab of simple products.
+	 * Shown only while "Add-on" is ticked.
 	 *
 	 * @return void
 	 */
 	public static function addon_settings_fields() {
 		global $product_object;
 
-		echo '<div class="options_group show_if_simple">';
+		$visible = $product_object instanceof WC_Product && $product_object->is_type( 'simple' ) && a8csp_wcpa_is_addon( $product_object );
+
+		// Not `show_if_simple`: WooCommerce shows those again whenever the type, Virtual or Downloadable change.
+		echo '<div class="options_group a8csp_wcpa_addon_settings"' . ( $visible ? '' : ' style="display: none;"' ) . '>';
 
 		woocommerce_wp_select(
 			array(
 				'id'          => A8CSP_WCPA_META_QUANTITY,
 				'label'       => __( 'Add-on quantity', 'wc-product-addons' ),
-				'description' => __( 'Only used when this product is an add-on.', 'wc-product-addons' ),
+				'description' => __( 'How many can be added to the line it belongs to.', 'wc-product-addons' ),
 				'desc_tip'    => true,
 				'value'       => $product_object instanceof WC_Product ? a8csp_wcpa_get_quantity_mode( $product_object ) : 'independent',
 				'options'     => array(
@@ -97,15 +101,34 @@ class Admin {
 			)
 		);
 
+		woocommerce_wp_text_input(
+			array(
+				'id'          => A8CSP_WCPA_META_DETAILS_LABEL,
+				'label'       => __( 'Details link text', 'wc-product-addons' ),
+				'description' => __( 'Text of the link that opens the description, for example "Menu details". Leave empty for "Details".', 'wc-product-addons' ),
+				'desc_tip'    => true,
+				'placeholder' => __( 'Details', 'wc-product-addons' ),
+				'value'       => $product_object instanceof WC_Product ? (string) $product_object->get_meta( A8CSP_WCPA_META_DETAILS_LABEL ) : '',
+			)
+		);
+
 		echo '</div>';
 
-		// Only show the maximum with the "set number" rule.
+		// The settings show for simple products marked "Add-on"; the maximum only with the "set number" rule.
 		wc_enqueue_js(
 			"jQuery( function ( $ ) {
+				var group = $( '.a8csp_wcpa_addon_settings' );
+				var isAddon = $( '#" . A8CSP_WCPA_META_IS_ADDON . "' );
+				var type = $( 'select#product-type' );
 				var mode = $( '#" . A8CSP_WCPA_META_QUANTITY . "' );
-				var field = $( '." . A8CSP_WCPA_META_QUANTITY_LIMIT . "_field' );
-				function toggle() { field.toggle( 'fixed' === mode.val() ); }
+				var limit = $( '." . A8CSP_WCPA_META_QUANTITY_LIMIT . "_field' );
+				function toggle() {
+					group.toggle( 'simple' === type.val() && isAddon.is( ':checked' ) );
+					limit.toggle( 'fixed' === mode.val() );
+				}
+				isAddon.on( 'change', toggle );
 				mode.on( 'change', toggle );
+				$( document.body ).on( 'woocommerce-product-type-change', toggle );
 				toggle();
 			} );"
 		);
@@ -132,6 +155,20 @@ class Admin {
 			'form-field'
 		);
 		echo '</div>';
+
+		// Variations: hide the add-ons picker while "No add-ons" is ticked. Variations load over AJAX.
+		wc_enqueue_js(
+			"jQuery( function ( $ ) {
+				function toggle( checkbox ) {
+					$( checkbox ).closest( '.woocommerce_variation' ).find( '.a8csp_wcpa_variation_addons_field' ).toggle( ! checkbox.checked );
+				}
+				$( '#woocommerce-product-data' )
+					.on( 'change', '.a8csp_wcpa_no_addons', function () { toggle( this ); } )
+					.on( 'woocommerce_variations_loaded', function () {
+						$( this ).find( '.a8csp_wcpa_no_addons' ).each( function () { toggle( this ); } );
+					} );
+			} );"
+		);
 	}
 
 	/**
@@ -146,13 +183,28 @@ class Admin {
 	public static function variation_addons_field( $loop, $variation_data, $variation ) {
 		unset( $variation_data );
 
+		$no_addons = 'yes' === get_post_meta( $variation->ID, A8CSP_WCPA_META_NO_ADDONS, true );
+
 		self::render_addons_select(
 			A8CSP_WCPA_META_ADDONS . '_' . $loop,
 			'a8csp_wcpa_variation_addons[' . absint( $loop ) . '][]',
 			array_filter( array_map( 'absint', (array) get_post_meta( $variation->ID, A8CSP_WCPA_META_ADDONS, true ) ) ),
-			__( 'Offered in the cart with this variation. Leave empty to use the product’s add-ons.', 'wc-product-addons' ),
-			'form-row form-row-full'
+			__( 'Offered in the cart with this variation. Leave empty to use the product’s add-ons (Linked Products tab), or tick “No add-ons” to offer none.', 'wc-product-addons' ),
+			'form-row form-row-full a8csp_wcpa_variation_addons_field',
+			$no_addons,
+			true
 		);
+
+		// Input inside its label, like WooCommerce's variation checkboxes. Not the `checkbox` class:
+		// WooCommerce floats those and removes their margin in variations.
+		?>
+		<p class="form-row form-row-full">
+			<label for="<?php echo esc_attr( A8CSP_WCPA_META_NO_ADDONS . '_' . $loop ); ?>">
+				<input type="checkbox" class="a8csp_wcpa_no_addons" style="margin: 0 0.5em 0 0;" id="<?php echo esc_attr( A8CSP_WCPA_META_NO_ADDONS . '_' . $loop ); ?>" name="<?php echo esc_attr( 'a8csp_wcpa_variation_no_addons[' . absint( $loop ) . ']' ); ?>" value="yes" <?php checked( $no_addons ); ?> /><?php esc_html_e( 'No add-ons', 'wc-product-addons' ); ?>
+				<?php echo wc_help_tip( __( 'Offer no add-ons with this variation, even when the product has add-ons (Linked Products tab).', 'wc-product-addons' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wc_help_tip escapes. ?>
+			</label>
+		</p>
+		<?php
 	}
 
 	/**
@@ -163,13 +215,16 @@ class Admin {
 	 * @param int[]  $selected    Selected add-on IDs.
 	 * @param string $description Help text.
 	 * @param string $wrapper     Wrapper class.
+	 * @param bool   $hidden      Whether the field starts hidden.
+	 * @param bool   $tip_in_label Whether the help tip goes in the label (variations) rather than after the field.
 	 *
 	 * @return void
 	 */
-	private static function render_addons_select( $id, $name, $selected, $description, $wrapper ) {
+	private static function render_addons_select( $id, $name, $selected, $description, $wrapper, $hidden = false, $tip_in_label = false ) {
+		$tip = wc_help_tip( $description );
 		?>
-		<p class="<?php echo esc_attr( $wrapper ); ?>">
-			<label for="<?php echo esc_attr( $id ); ?>"><?php esc_html_e( 'Add-ons', 'wc-product-addons' ); ?></label>
+		<p class="<?php echo esc_attr( $wrapper ); ?>"<?php echo $hidden ? ' style="display: none;"' : ''; ?>>
+			<label for="<?php echo esc_attr( $id ); ?>"><?php esc_html_e( 'Add-ons', 'wc-product-addons' ); ?> <?php echo $tip_in_label ? $tip : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wc_help_tip escapes. ?></label>
 			<select class="wc-product-search" multiple="multiple" style="width: 50%;" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" data-placeholder="<?php esc_attr_e( 'Search for an add-on&hellip;', 'wc-product-addons' ); ?>" data-action="<?php echo esc_attr( self::SEARCH_ACTION ); ?>">
 				<?php
 				foreach ( $selected as $addon_id ) {
@@ -180,7 +235,7 @@ class Admin {
 				}
 				?>
 			</select>
-			<?php echo wc_help_tip( $description ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wc_help_tip escapes. ?>
+			<?php echo $tip_in_label ? '' : $tip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wc_help_tip escapes. ?>
 		</p>
 		<?php
 	}
@@ -203,6 +258,13 @@ class Admin {
 		$limit = isset( $_POST[ A8CSP_WCPA_META_QUANTITY_LIMIT ] ) ? absint( wp_unslash( $_POST[ A8CSP_WCPA_META_QUANTITY_LIMIT ] ) ) : 0;
 		$product->update_meta_data( A8CSP_WCPA_META_QUANTITY_LIMIT, max( 1, $limit ) );
 
+		$details_label = isset( $_POST[ A8CSP_WCPA_META_DETAILS_LABEL ] ) ? sanitize_text_field( wp_unslash( $_POST[ A8CSP_WCPA_META_DETAILS_LABEL ] ) ) : '';
+		if ( '' === $details_label ) {
+			$product->delete_meta_data( A8CSP_WCPA_META_DETAILS_LABEL );
+		} else {
+			$product->update_meta_data( A8CSP_WCPA_META_DETAILS_LABEL, $details_label );
+		}
+
 		$addons = isset( $_POST['a8csp_wcpa_addons'] ) ? array_filter( array_map( 'absint', (array) wp_unslash( $_POST['a8csp_wcpa_addons'] ) ) ) : array();
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
@@ -218,9 +280,18 @@ class Admin {
 	 * @return void
 	 */
 	public static function save_variation( $variation_id, $loop ) {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce verifies the variations save nonce.
-		$posted = isset( $_POST['a8csp_wcpa_variation_addons'][ $loop ] ) ? (array) wp_unslash( $_POST['a8csp_wcpa_variation_addons'][ $loop ] ) : array();
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- WooCommerce verifies the variations save nonce.
+		$posted    = isset( $_POST['a8csp_wcpa_variation_addons'][ $loop ] ) ? (array) wp_unslash( $_POST['a8csp_wcpa_variation_addons'][ $loop ] ) : array();
+		$no_addons = isset( $_POST['a8csp_wcpa_variation_no_addons'][ $loop ] );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 		$addons = array_values( array_filter( array_map( 'absint', $posted ) ) );
+
+		// The list is kept while "No add-ons" is ticked, so unticking it brings the list back.
+		if ( $no_addons ) {
+			update_post_meta( $variation_id, A8CSP_WCPA_META_NO_ADDONS, 'yes' );
+		} else {
+			delete_post_meta( $variation_id, A8CSP_WCPA_META_NO_ADDONS );
+		}
 
 		if ( array() === $addons ) {
 			delete_post_meta( $variation_id, A8CSP_WCPA_META_ADDONS );

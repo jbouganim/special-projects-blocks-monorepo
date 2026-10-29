@@ -26,6 +26,25 @@ class Blocks {
 
 		add_action( 'woocommerce_blocks_cart_block_registration', array( __CLASS__, 'register_integration' ) );
 		add_action( 'woocommerce_blocks_checkout_block_registration', array( __CLASS__, 'register_integration' ) );
+		add_filter( 'render_block_woocommerce/cart', array( __CLASS__, 'enqueue_cart_checkout_style' ) );
+		add_filter( 'render_block_woocommerce/checkout', array( __CLASS__, 'enqueue_cart_checkout_style' ) );
+	}
+
+	/**
+	 * Enqueue the Cart / Checkout styles (details dialog) when one of those blocks renders.
+	 *
+	 * @param string $block_content Block HTML.
+	 *
+	 * @return string
+	 */
+	public static function enqueue_cart_checkout_style( $block_content ) {
+		require_once __DIR__ . '/class-blocks-integration.php';
+
+		if ( wp_style_is( Blocks_Integration::NAME, 'registered' ) ) {
+			wp_enqueue_style( Blocks_Integration::NAME );
+		}
+
+		return $block_content;
 	}
 
 	/**

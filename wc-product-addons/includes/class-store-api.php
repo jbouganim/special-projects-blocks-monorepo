@@ -104,16 +104,18 @@ class Store_API {
 			$details = a8csp_wcpa_get_addon_details( $addon );
 
 			$data['addons'][] = array(
-				'id'                => $addon->get_id(),
-				'name'              => a8csp_wcpa_plain_text( $addon->get_name() ),
-				'short_description' => a8csp_wcpa_get_addon_summary( $addon ),
-				'has_details'       => '' !== $details,
-				'details'           => $details,
-				'price'             => self::price( $addon ),
-				'price_formatted'   => self::format_price( (float) self::display_price( $addon ) ),
-				'quantity_mode'     => a8csp_wcpa_get_quantity_mode( $addon ),
-				'max'               => $max < 0 ? null : (int) $max,
-				'in_cart'           => $children[ $addon->get_id() ] ?? null,
+				'id'                 => $addon->get_id(),
+				'name'               => a8csp_wcpa_plain_text( $addon->get_name() ),
+				'short_description'  => a8csp_wcpa_get_addon_summary( $addon ),
+				'has_details'        => '' !== $details,
+				'details'            => $details,
+				'details_label'      => a8csp_wcpa_get_details_label( $addon ),
+				'details_aria_label' => a8csp_wcpa_get_details_aria_label( $addon ),
+				'price'              => self::price( $addon ),
+				'price_formatted'    => self::format_price( (float) self::display_price( $addon ) ),
+				'quantity_mode'      => a8csp_wcpa_get_quantity_mode( $addon ),
+				'max'                => $max < 0 ? null : (int) $max,
+				'in_cart'            => $children[ $addon->get_id() ] ?? null,
 			);
 		}
 
@@ -153,34 +155,42 @@ class Store_API {
 				'items'       => array(
 					'type'       => 'object',
 					'properties' => array(
-						'id'                => array( 'type' => 'integer' ),
-						'name'              => array( 'type' => 'string' ),
-						'short_description' => array(
+						'id'                 => array( 'type' => 'integer' ),
+						'name'               => array( 'type' => 'string' ),
+						'short_description'  => array(
 							'description' => __( 'The short description as plain text, shown with the add-on; empty when not set.', 'wc-product-addons' ),
 							'type'        => 'string',
 						),
-						'has_details'       => array(
+						'has_details'        => array(
 							'description' => __( 'Whether the add-on has a description (for a details link).', 'wc-product-addons' ),
 							'type'        => 'boolean',
 						),
-						'details'           => array(
+						'details'            => array(
 							'description' => __( 'The description as HTML, for the details dialog; empty when has_details is false.', 'wc-product-addons' ),
 							'type'        => 'string',
 						),
-						'price'             => array(
+						'details_label'      => array(
+							'description' => __( 'Text of the details link.', 'wc-product-addons' ),
+							'type'        => 'string',
+						),
+						'details_aria_label' => array(
+							'description' => __( 'Accessible name of the details link, with the add-on name.', 'wc-product-addons' ),
+							'type'        => 'string',
+						),
+						'price'              => array(
 							'description' => __( 'Unit price in the currency’s minor unit, as shown in the cart.', 'wc-product-addons' ),
 							'type'        => 'string',
 						),
-						'price_formatted'   => array( 'type' => 'string' ),
-						'quantity_mode'     => array(
+						'price_formatted'    => array( 'type' => 'string' ),
+						'quantity_mode'      => array(
 							'type' => 'string',
 							'enum' => array( 'independent', 'max_parent', 'fixed' ),
 						),
-						'max'               => array(
+						'max'                => array(
 							'description' => __( 'The add-on’s own quantity limit per line (stock, set number), or null. With max_parent it also stops at the line’s quantity.', 'wc-product-addons' ),
 							'type'        => array( 'integer', 'null' ),
 						),
-						'in_cart'           => array(
+						'in_cart'            => array(
 							'type'       => array( 'object', 'null' ),
 							'properties' => array(
 								'key'      => array( 'type' => 'string' ),

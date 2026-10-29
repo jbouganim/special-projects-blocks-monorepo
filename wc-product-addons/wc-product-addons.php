@@ -5,7 +5,7 @@
  * Requires at least: 6.7
  * Requires PHP:      7.4
  * Requires Plugins:  woocommerce
- * Version:           0.1.0
+ * Version:           0.2.0
  * Author:            Automattic Special Projects Team
  * Author URI:        https://specialprojects.automattic.com/
  * Update URI:        https://github.com/a8cteam51/special-projects-blocks-monorepo/
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'A8CSP_WCPA_VERSION', '0.1.0' );
+define( 'A8CSP_WCPA_VERSION', '0.2.0' );
 define( 'A8CSP_WCPA_FILE', __FILE__ );
 define( 'A8CSP_WCPA_DIR', __DIR__ );
 

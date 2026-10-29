@@ -2,6 +2,9 @@
  * Structural styles only. Themes style the add-ons (spacing, type, colours, buttons).
  */
 
+// The details dialog.
+@use "../shared/details-dialog";
+
 // The wrapper doesn't change WooCommerce's mini-cart layout.
 .a8csp-wcpa-mini-cart {
 	display: contents;
@@ -80,29 +83,4 @@
 
 .a8csp-wcpa-addon__details {
 	text-decoration: underline;
-}
-
-.a8csp-wcpa-details {
-	max-width: min(40rem, calc(100vw - 2rem));
-	max-height: calc(100dvh - 2rem);
-	overflow: auto;
-
-	&::backdrop {
-		background: rgba(0, 0, 0, 0.6);
-	}
-}
-
-.a8csp-wcpa-details__header {
-	display: flex;
-	align-items: start;
-	justify-content: space-between;
-	gap: 1em;
-}
-
-.a8csp-wcpa-details__close {
-	padding: 0;
-	border: 0;
-	background: none;
-	color: inherit;
-	cursor: pointer;
 }
